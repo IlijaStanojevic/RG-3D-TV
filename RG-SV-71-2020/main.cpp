@@ -15,6 +15,10 @@
 #include <GL/glew.h>   
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -60,6 +64,7 @@ int main(void)
     unsigned int textureShader = createShader("texture.vert", "texture.frag");
     unsigned int channel2Shader = createShader("channel2.vert", "channel2.frag");
     unsigned int playerShader = createShader("player.vert", "player.frag");
+    unsigned int unifiedShader = createShader("unified.vert", "unified.frag");
 
 
 
@@ -68,13 +73,13 @@ int main(void)
 
     float indexVertices[] =
     {   //X      Y      S    T 
-        0.5,    1.0,   0.0, 1.0, // Top-left
-        0.5,    0.9,   0.0, 0.0, // Bottom-left
-        1,    0.9,   1.0, 0.0, // Bottom-right
+        0.5,    1.0, 0.0,   0.0, 1.0, // Top-left
+        0.5,    0.9,0.0,   0.0, 0.0, // Bottom-left
+        1,    0.9,  0.0, 1.0, 0.0, // Bottom-right
 
-        0.5,    1.0,   0.0, 1.0, // Top-left
-        1,    0.9,   1.0, 0.0, // Bottom-right
-        1,    1.0,   1.0, 1.0  // Top-right
+        0.5,    1.0,0.0,   0.0, 1.0, // Top-left
+        1,    0.9,0.0,   1.0, 0.0, // Bottom-right
+        1,    1.0,0.0,   1.0, 1.0  // Top-right
     };
 
 
@@ -83,31 +88,31 @@ int main(void)
 
     float markaVertices[] =
     {   //X      Y      S    T 
-        -0.5,    -1.0,   0.0, -1.0, // Top-left
-        -0.5,    -0.7,   0.0, 0.0, // Bottom-left
-        0.5,    -0.7,   1.0, 0.0, // Bottom-right
+        -0.5,    -1.0,0.0,   0.0, -1.0, // Top-left
+        -0.5,    -0.7,0.0,   0.0, 0.0, // Bottom-left
+        0.5,    -0.7, 0.0,  1.0, 0.0, // Bottom-right
 
-        -0.5,    -1.0,   0.0, -1.0, // Top-left
-        0.5,    -0.7,   1.0, 0.0, // Bottom-right
-        0.5,    -1.0,   1.0, -1.0  // Top-right
+        -0.5,    -1.0,0.0,   0.0, -1.0, // Top-left
+        0.5,    -0.7,0.0,   1.0, 0.0, // Bottom-right
+        0.5,    -1.0,0.0,   1.0, -1.0  // Top-right
     };
-    unsigned int indexStride = (2 + 2) * sizeof(float);
+    unsigned int indexStride = (3 + 2) * sizeof(float);
 
 
     //okvir TV-a
     float stripVertices[] = {
-        1.0, 1.0,     0.5, 0.5, 0.5,
-        0.9, 0.9,     0.5, 0.5, 0.5,
-        1.0, -1.0,    0.5, 0.5, 0.5,
-        0.9, -0.7,    0.5, 0.5, 0.5,
-        -1.0, -1.0,   0.5, 0.5, 0.5,
-        -0.9, -0.7,   0.5, 0.5, 0.5,
-        -1.0, 1.0,    0.5, 0.5, 0.5,
-        -0.9, 0.9,    0.5, 0.5, 0.5,
-        1.0, 1.0,     0.5, 0.5, 0.5,
-        0.9, 0.9,     0.5, 0.5, 0.5,
+        1.0, 1.0, 0.5,    0.5, 0.5, 0.5, 0.0,
+        0.9, 0.9,0.5,   0.5, 0.5, 0.5, 0.0,
+        1.0, -1.0,0.5,  0.5, 0.5, 0.5, 0.0,
+        0.9, -0.7,0.5,  0.5, 0.5, 0.5, 0.0,
+        -1.0, -1.0,0.5,   0.5, 0.5, 0.5, 0.0,
+        -0.9, -0.7,0.5,   0.5, 0.5, 0.5, 0.0,
+        -1.0, 1.0,0.5,    0.5, 0.5, 0.5, 0.0,
+        -0.9, 0.9,0.5,    0.5, 0.5, 0.5, 0.0,
+        1.0, 1.0,0.5,     0.5, 0.5, 0.5, 0.0,
+        0.9, 0.9,0.5,     0.5, 0.5, 0.5, 0.0,
     };
-    unsigned int stripStride = 5 * sizeof(float);
+    unsigned int stripStride = 7 * sizeof(float);
 
     float button[CRES * 2 + 4]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
     const float buttonCenterX = 0.75; // Centar X0
@@ -145,25 +150,25 @@ int main(void)
 
     float luigiVertices[] =
     {   //X      Y      S    T 
-        -0.3,    0.3,   0.0, 1.0, // Top-left
-        -0.3,    -0.2,   0.0, 0.0, // Bottom-left
-        -0.4,    -0.2,   1.0, 0.0, // Bottom-right
+        -0.3,    0.3,0.0,   0.0, 1.0, // Top-left
+        -0.3,    -0.2,0.0,   0.0, 0.0, // Bottom-left
+        -0.4,    -0.2,0.0,   1.0, 0.0, // Bottom-right
 
-        -0.3,    0.3,   0.0, 1.0, // Top-left
-        -0.4,    -0.2,   1.0, 0.0, // Bottom-right
-        -0.4,    0.3,   1.0, 1.0  // Top-right
+        -0.3,    0.3,0.0,   0.0, 1.0, // Top-left
+        -0.4,    -0.2,0.0,   1.0, 0.0, // Bottom-right
+        -0.4,    0.3,0.0,   1.0, 1.0  // Top-right
     };
 
 
     float marioVertices[] =
     {   //X      Y      S    T 
-        0.3,    0.3,   0.0, 1.0, // Top-left
-        0.3,    -0.2,   0.0, 0.0, // Bottom-left
-        0.4,    -0.2,   1.0, 0.0, // Bottom-right
+        0.3,    0.3,0.0,   0.0, 1.0, // Top-left
+        0.3,    -0.2,0.0,   0.0, 0.0, // Bottom-left
+        0.4,    -0.2,0.0,   1.0, 0.0, // Bottom-right
 
-        0.3,    0.3,   0.0, 1.0, // Top-left
-        0.4,    -0.2,   1.0, 0.0, // Bottom-right
-        0.4,    0.3,   1.0, 1.0  // Top-right
+        0.3,    0.3,0.0,   0.0, 1.0, // Top-left
+        0.4,    -0.2,0.0,   1.0, 0.0, // Bottom-right
+        0.4,    0.3,0.0,   1.0, 1.0  // Top-right
     };
 
 
@@ -181,9 +186,9 @@ int main(void)
     glBindVertexArray(VAO[0]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(stripVertices), stripVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stripStride, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stripStride, (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stripStride, (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stripStride, (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
 
@@ -289,6 +294,25 @@ int main(void)
     unsigned p1xLoc = glGetUniformLocation(playerShader, "p1x");
     unsigned p2xLoc = glGetUniformLocation(playerShader, "p2x");
 
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++            UNIFORME            +++++++++++++++++++++++++++++++++++++++++++++++++
+
+    glm::mat4 model = glm::mat4(1.0f); //Matrica transformacija - mat4(1.0f) generise jedinicnu matricu
+    unsigned int modelLoc = glGetUniformLocation(unifiedShader, "uM");
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // lookAt(Gdje je kamera, u sta kamera gleda, jedinicni vektor pozitivne Y ose svijeta  - ovo rotira kameru)
+    unsigned int viewLoc = glGetUniformLocation(unifiedShader, "uV");
+    glm::mat4 projectionP = glm::perspective(glm::radians(90.0f), (float)wWidth / (float)wHeight, 0.0001f, 100.0f); //Matrica perspektivne projekcije
+    glm::mat4 projectionO = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0001f, 100.0f); //Matrica ortogonalne projekcije
+    unsigned int projectionLoc = glGetUniformLocation(unifiedShader, "uP");
+
+
+    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++ RENDER LOOP - PETLJA ZA CRTANJE +++++++++++++++++++++++++++++++++++++++++++++++++
+    glUseProgram(unifiedShader); //Slanje default vrijednosti uniformi
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use perspective projection matrix
+    glBindVertexArray(VAO[0]);
+
 
 
 
@@ -299,8 +323,66 @@ int main(void)
     float p2x = 0;
     while (!glfwWindowShouldClose(window))
     {
+        //glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
         glfwPollEvents();
+        //Mijenjanje projekcija
+        if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+        {
+            glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP));
+        }
+        if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+        {
+            glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionO));
+        }
+        if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
+        {
+            view = glm::rotate(view, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        }
 
+        // Rotate the camera right (D key)
+        if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+        {
+            view = glm::rotate(view, glm::radians(-1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        }
+
+        // Rotate the camera up (W key)
+        if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
+        {
+            view = glm::rotate(view, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        }
+
+        // Rotate the camera down (S key)
+        if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+        {
+            view = glm::rotate(view, glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        }
+        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+        {
+            glm::vec3 forward = glm::normalize(glm::vec3(view[2])); // Extract the forward vector from the view matrix
+            view = glm::translate(view, 0.01f * forward); // Move along the forward vector
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        }
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+
+        // Move the camera backward (S key)
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        {
+            glm::vec3 backward = -glm::normalize(glm::vec3(view[2])); // Extract the backward vector from the view matrix
+            view = glm::translate(view, 0.01f * backward); // Move along the backward vector
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        }
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -391,16 +473,15 @@ int main(void)
             glClearColor(0.0, 0.0, 0.0, 1.0); // Black background
         }
 
+        /*
         glUseProgram(playerShader);
         glUniform1f(p1xLoc, p2x);
         glUniform1f(p2xLoc, p1x);
-
+        
         glClear(GL_COLOR_BUFFER_BIT);
+        */
 
-        glUseProgram(basicShader);
-        glBindVertexArray(VAO[0]); // Border TV-a
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
-
+        /*
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glUseProgram(textureShader);
@@ -502,17 +583,16 @@ int main(void)
             glUniform3f(glGetUniformLocation(buttonShader, "pulsatingColor"), rgb, rgb, rgb);
             glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(button) / (2 * sizeof(float))); // pulsirajuce crno belo dugme
         }
+        */
 
 
 
-
-
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-        glUseProgram(0);
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Osvjezavamo i Z bafer i bafer boje
+        glUseProgram(unifiedShader);
+        glBindVertexArray(VAO[0]); // Border TV-a
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
         glfwSwapBuffers(window);
+        glfwPollEvents();
 
 
     }
