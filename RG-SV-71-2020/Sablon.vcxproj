@@ -154,6 +154,8 @@
     <None Include="packages.config" />
     <None Include="player.frag" />
     <None Include="player.vert" />
+    <None Include="screen.frag" />
+    <None Include="screen.vert" />
     <None Include="texture.frag" />
     <None Include="texture.vert" />
     <None Include="unified.frag" />

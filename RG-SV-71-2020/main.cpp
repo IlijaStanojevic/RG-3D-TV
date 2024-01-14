@@ -65,6 +65,7 @@ int main(void)
     unsigned int channel2Shader = createShader("channel2.vert", "channel2.frag");
     unsigned int playerShader = createShader("player.vert", "player.frag");
     unsigned int unifiedShader = createShader("unified.vert", "unified.frag");
+    unsigned int screenShader = createShader("screen.vert", "screen.frag");
 
 
 
@@ -101,18 +102,58 @@ int main(void)
 
     //okvir TV-a
     float stripVertices[] = {
-        1.0, 1.0, 0.5,    0.5, 0.5, 0.5, 0.0,
-        0.9, 0.9,0.5,   0.5, 0.5, 0.5, 0.0,
-        1.0, -1.0,0.5,  0.5, 0.5, 0.5, 0.0,
-        0.9, -0.7,0.5,  0.5, 0.5, 0.5, 0.0,
-        -1.0, -1.0,0.5,   0.5, 0.5, 0.5, 0.0,
-        -0.9, -0.7,0.5,   0.5, 0.5, 0.5, 0.0,
-        -1.0, 1.0,0.5,    0.5, 0.5, 0.5, 0.0,
-        -0.9, 0.9,0.5,    0.5, 0.5, 0.5, 0.0,
-        1.0, 1.0,0.5,     0.5, 0.5, 0.5, 0.0,
-        0.9, 0.9,0.5,     0.5, 0.5, 0.5, 0.0,
+        // Front face
+        1.0, 1.0, 0.5,  0.5, 0.5, 0.5, 0.0,
+        -1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
+        1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
+        -1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
+
+        // Left side
+        -1.0, 1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
+        -1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
+        -1.0, -1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
+        -1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
+
+        // Right side
+        1.0, 1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
+        1.0, 1.0, 0.5,  0.5, 0.5, 0.5, 0.0,
+        1.0, -1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
+        1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
+
+        // Back face
+        -1.0, 1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
+        1.0, 1.0, 0.0,   0.5, 0.5, 0.5, 0.0,
+        -1.0, -1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
+        1.0, -1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
+
+        // Bottom face
+        -1.0, -1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
+        1.0, -1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
+        -1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
+        1.0, -1.0, 0.5,  0.5, 0.5, 0.5, 0.0,
+
+        // Top face
+        1.0, 1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
+        -1.0, 1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
+        1.0, 1.0, 0.5,  0.5, 0.5, 0.5, 0.0,
+        -1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
     };
+
+
+    float screenVertices[] = {
+        // First Triangle
+        0.9, 0.9, 0.5,  1.0, 1.0, 1.0, 0.0,
+        -0.9, 0.9, 0.5,  1.0, 1.0, 1.0, 0.0,
+        -0.9, -0.7, 0.5,  1.0, 1.0, 1.0, 0.0,
+
+        // Second Triangle
+        -0.9, -0.7, 0.5,  1.0, 1.0, 1.0, 0.0,
+        0.9, -0.7, 0.5,  1.0, 1.0, 1.0, 0.0,
+        0.9, 0.9, 0.5,  1.0, 1.0, 1.0, 0.0,
+    };
+
     unsigned int stripStride = 7 * sizeof(float);
+
 
     float button[CRES * 2 + 4]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
     const float buttonCenterX = 0.75; // Centar X0
@@ -191,12 +232,20 @@ int main(void)
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stripStride, (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-
     glBindVertexArray(VAO[1]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(button), button, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(screenVertices), screenVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stripStride, (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stripStride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+
+    //glBindVertexArray(VAO[1]);
+    //glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    //glBufferData(GL_ARRAY_BUFFER, sizeof(button), button, GL_STATIC_DRAW);
+    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    //glEnableVertexAttribArray(0);
 
 
 
@@ -307,26 +356,47 @@ int main(void)
 
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++ RENDER LOOP - PETLJA ZA CRTANJE +++++++++++++++++++++++++++++++++++++++++++++++++
-    glUseProgram(unifiedShader); //Slanje default vrijednosti uniformi
+    glUseProgram(unifiedShader); // Set the unifiedShader
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use perspective projection matrix
     glBindVertexArray(VAO[0]);
 
 
+    glUseProgram(screenShader); // Set the screenShader
+    unsigned int screenColorLoc = glGetUniformLocation(screenShader, "screenColor");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use the same perspective projection matrix as the unifiedShader
+    glBindVertexArray(VAO[1]);
+
+    //glUniform4fv(screenColorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
+    glUniform4f(screenColorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
+    if (screenColorLoc == -1) {
+        std::cout << "Doesn't work";
+        std::cout << screenColorLoc;
+    }
+
+    // Swap buffers and poll events
+    glfwSwapBuffers(window);
+    glfwPollEvents();
 
 
+
+
+    glDepthFunc(GL_LEQUAL);
     float rgb = 0;
     bool isTVOn = false;
     int currentChannel = 3;
     float p1x = 0;
     float p2x = 0;
+
+
+
     while (!glfwWindowShouldClose(window))
     {
-        //glEnable(GL_CULL_FACE);
         glEnable(GL_DEPTH_TEST);
         glfwPollEvents();
-        //Mijenjanje projekcija
         if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         {
             glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP));
@@ -472,125 +542,35 @@ int main(void)
         else {
             glClearColor(0.0, 0.0, 0.0, 1.0); // Black background
         }
-
-        /*
-        glUseProgram(playerShader);
-        glUniform1f(p1xLoc, p2x);
-        glUniform1f(p2xLoc, p1x);
-        
-        glClear(GL_COLOR_BUFFER_BIT);
-        */
-
-        /*
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glUseProgram(textureShader);
-        glBindVertexArray(VAO[5]);
-        glActiveTexture(GL_TEXTURE0); // Ime prezime index marka textura
-        glBindTexture(GL_TEXTURE_2D, indexTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_BLEND);
-
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glUseProgram(textureShader);
-        glBindVertexArray(VAO[8]);
-        glActiveTexture(GL_TEXTURE0); // Ime prezime index gore desno textura
-        glBindTexture(GL_TEXTURE_2D, indexTexture);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindTexture(GL_TEXTURE_2D, 0);
-        glDisable(GL_BLEND);
-
-        if (isTVOn)
-        {
-            glUseProgram(buttonShader);
-            glBindVertexArray(VAO[1]);
-            glUniform3f(glGetUniformLocation(buttonShader, "staticColor"), 1.0f, 0.0f, 1.0f); // static pink dugme
-            glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(button) / (2 * sizeof(float)));
-            if (currentChannel == 1) {
-                glUseProgram(basicShader);
-                glBindVertexArray(VAO[3]);
-                glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(dotCircle) / (2 * sizeof(float)));
-
-                // Draw the clock line
-                glUseProgram(basicShader);
-                glBindVertexArray(VAO[4]);
-
-                float clockLineVertices[] = {
-                    clockCenterX, clockCenterY, 1.0f, 0.0f, 0.0f, // Center of the clock
-                    clockCenterX + (clockRadius * cos(-glfwGetTime())) / aspectRatio, clockCenterY + clockRadius * sin(-glfwGetTime()), 1.0f, 0.0f, 0.0f // End point of the clock line
-                };
-
-                glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
-                glBufferData(GL_ARRAY_BUFFER, sizeof(clockLineVertices), clockLineVertices, GL_STATIC_DRAW);
-                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-                glEnableVertexAttribArray(0);
-                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
-                glEnableVertexAttribArray(1);
-
-                glEnable(GL_LINE_WIDTH);
-                glLineWidth(5.0f);
-                glDrawArrays(GL_LINES, 0, 2);
-                glDisable(GL_LINE_WIDTH);
-            }
-
-            else if (currentChannel == 2)
-            {
-
-                glUseProgram(channel2Shader);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-                glEnable(GL_PROGRAM_POINT_SIZE);
-                glBindVertexArray(VAO[2]);
-                glPointSize(7.0f); // triangle point size forming a circle
-                glDrawArrays(GL_TRIANGLES, 0, sizeof(dotCircle) / (2 * sizeof(float)));
-                glDisable(GL_PROGRAM_POINT_SIZE);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            }
-            else if (currentChannel == 3) {
-
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                glUseProgram(playerShader);
-                glBindVertexArray(VAO[7]);
-                glActiveTexture(GL_TEXTURE0); // mario textura
-                glBindTexture(GL_TEXTURE_2D, marioTexture);
-                glUniform1i(uTexLoc, 0);
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-                glBindTexture(GL_TEXTURE_2D, 0);
-                glDisable(GL_BLEND);
-
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                glUseProgram(playerShader);
-                glBindVertexArray(VAO[6]);
-                glActiveTexture(GL_TEXTURE0); // luigi textura
-                glBindTexture(GL_TEXTURE_2D, luigiTexture);
-                glUniform1i(uTexLoc, 0);
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-                glBindTexture(GL_TEXTURE_2D, 0);
-                glDisable(GL_BLEND);
-
-            }
-        }
-        else
-        {
-
-            glUseProgram(buttonShader);
-            glUniform3f(glGetUniformLocation(buttonShader, "staticColor"), 0.0f, 0.0f, 0.0f); // reset static color
-            glBindVertexArray(VAO[1]);
-            glUniform1f(glGetUniformLocation(buttonShader, "time"), glfwGetTime());
-            glUniform3f(glGetUniformLocation(buttonShader, "pulsatingColor"), rgb, rgb, rgb);
-            glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(button) / (2 * sizeof(float))); // pulsirajuce crno belo dugme
-        }
-        */
+        //if (isTVOn)
+        //{
+        //    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        //    glUseProgram(screenShader);
+        //    glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 1.0f, 1.0f, 1.0f);
+        //}
+        //else
+        //{
+        //    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        //    glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 0.0f, 0.0f, 0.0f);
+        //}
 
 
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Osvjezavamo i Z bafer i bafer boje
+
+        glDepthMask(GL_TRUE);
         glUseProgram(unifiedShader);
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glBindVertexArray(VAO[0]); // Border TV-a
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
+
+        glUseProgram(screenShader);
+        glUniform4f(screenColorLoc, 1.0f, 0.0f, 0.0f, 0.0f);
+        glBindVertexArray(VAO[1]); // Border TV-a
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
+
+
         glfwSwapBuffers(window);
         glfwPollEvents();
 
@@ -608,7 +588,6 @@ int main(void)
     glfwTerminate();
     return 0;
 }
-
 unsigned int compileShader(GLenum type, const char* source)
 {
     std::string content = "";

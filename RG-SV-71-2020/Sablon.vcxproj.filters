@@ -56,6 +56,8 @@
     </None>
     <None Include="unified.vert" />
     <None Include="unified.frag" />
+    <None Include="screen.vert" />
+    <None Include="screen.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="index.png">
