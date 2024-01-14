@@ -19,9 +19,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
+#include "shader.hpp"
+#include "model.hpp"
+
+//#define STB_IMAGE_IMPLEMENTATION
+//#include "stb_image.h"
 unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
 static unsigned loadImageToTexture(const char* filePath);
@@ -586,13 +589,13 @@ int main(void)
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 0.0f, 0.0f, 0.0f);
         }
-        //glDepthMask(GL_TRUE);
-        //glUseProgram(unifiedShader);
-        //glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        //glBindVertexArray(VAO[0]); // Border TV-a
-        //glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
+        glDepthMask(GL_TRUE);
+        glUseProgram(unifiedShader);
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glBindVertexArray(VAO[0]); // Border TV-a
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
 
-        glUseProgram(screenShader);
+        glUseProgram(unifiedShader);
         //glUniform4f(screenColorLoc, 1.0f, 0.0f, 0.0f, 0.0f);
         glBindVertexArray(VAO[1]); // Border TV-a
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));

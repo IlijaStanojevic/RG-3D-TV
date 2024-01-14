@@ -54,10 +54,18 @@
     <None Include="player.vert">
       <Filter>Source Files\Shader Files</Filter>
     </None>
-    <None Include="unified.vert" />
-    <None Include="unified.frag" />
-    <None Include="screen.vert" />
-    <None Include="screen.frag" />
+    <None Include="screen.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="screen.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="unified.frag">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
+    <None Include="unified.vert">
+      <Filter>Source Files\Shader Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="index.png">
@@ -72,6 +80,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mesh.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="model.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
