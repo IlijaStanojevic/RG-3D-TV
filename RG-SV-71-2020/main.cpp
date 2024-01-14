@@ -277,9 +277,9 @@ int main(void)
     glBindVertexArray(VAO[6]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[6]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(marioVertices), marioVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, indexStride, (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -288,9 +288,9 @@ int main(void)
     glBindVertexArray(VAO[7]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[7]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(luigiVertices), luigiVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, indexStride, (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -298,7 +298,7 @@ int main(void)
     glBindVertexArray(VAO[8]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[8]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(indexVertices), indexVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, indexStride, (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
@@ -364,18 +364,23 @@ int main(void)
 
 
     glUseProgram(screenShader); // Set the screenShader
-    unsigned int screenColorLoc = glGetUniformLocation(screenShader, "screenColor");
+    //unsigned int screenColorLoc = glGetUniformLocation(screenShader, "screenColor");
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    //glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use the same perspective projection matrix as the unifiedShader
+    glBindVertexArray(VAO[1]);
+
+    glUseProgram(playerShader); // Set the screenShader
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use the same perspective projection matrix as the unifiedShader
-    glBindVertexArray(VAO[1]);
-
-    //glUniform4fv(screenColorLoc, 1, glm::value_ptr(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)));
-    glUniform4f(screenColorLoc, 1.0f, 0.0f, 0.0f, 1.0f);
-    if (screenColorLoc == -1) {
-        std::cout << "Doesn't work";
-        std::cout << screenColorLoc;
+    glBindVertexArray(VAO[6]);
+    glBindVertexArray(VAO[7]);
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::cout << "OpenGL error: " << error << std::endl;
     }
+    
 
     // Swap buffers and poll events
     glfwSwapBuffers(window);
@@ -396,6 +401,7 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         glEnable(GL_DEPTH_TEST);
+        //glEnable(GL_CULL_FACE);
         glfwPollEvents();
         if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         {
@@ -536,36 +542,58 @@ int main(void)
 
             }
         }
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Osvjezavamo i Z bafer i bafer boje
+
+
+
         if (isTVOn) {
             glClearColor(1.0, 1.0, 1.0, 1.0); // White background
         }
         else {
             glClearColor(0.0, 0.0, 0.0, 1.0); // Black background
         }
-        //if (isTVOn)
-        //{
-        //    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        //    glUseProgram(screenShader);
-        //    glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 1.0f, 1.0f, 1.0f);
-        //}
-        //else
-        //{
-        //    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        //    glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 0.0f, 0.0f, 0.0f);
-        //}
+        if (isTVOn)
+        {
+            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            glUseProgram(screenShader);
+            glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 1.0f, 1.0f, 1.0f);
+            if (currentChannel == 3) {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glUseProgram(playerShader);
+                glBindVertexArray(VAO[7]);
+                glActiveTexture(GL_TEXTURE0); // mario textura
+                glBindTexture(GL_TEXTURE_2D, marioTexture);
+                glUniform1i(uTexLoc, 0);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDisable(GL_BLEND);
 
-
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Osvjezavamo i Z bafer i bafer boje
-
-        glDepthMask(GL_TRUE);
-        glUseProgram(unifiedShader);
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glBindVertexArray(VAO[0]); // Border TV-a
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glUseProgram(playerShader);
+                glBindVertexArray(VAO[6]);
+                glActiveTexture(GL_TEXTURE0); // luigi textura
+                glBindTexture(GL_TEXTURE_2D, luigiTexture);
+                glUniform1i(uTexLoc, 0);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDisable(GL_BLEND);
+            }
+        }
+        else
+        {
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 0.0f, 0.0f, 0.0f);
+        }
+        //glDepthMask(GL_TRUE);
+        //glUseProgram(unifiedShader);
+        //glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        //glBindVertexArray(VAO[0]); // Border TV-a
+        //glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
 
         glUseProgram(screenShader);
-        glUniform4f(screenColorLoc, 1.0f, 0.0f, 0.0f, 0.0f);
+        //glUniform4f(screenColorLoc, 1.0f, 0.0f, 0.0f, 0.0f);
         glBindVertexArray(VAO[1]); // Border TV-a
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
