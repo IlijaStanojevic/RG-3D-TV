@@ -151,6 +151,8 @@
     <None Include="button.vert" />
     <None Include="channel2.frag" />
     <None Include="channel2.vert" />
+    <None Include="model.frag" />
+    <None Include="model.vert" />
     <None Include="packages.config" />
     <None Include="player.frag" />
     <None Include="player.vert" />

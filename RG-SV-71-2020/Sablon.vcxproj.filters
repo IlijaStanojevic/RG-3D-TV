@@ -66,6 +66,8 @@
     <None Include="unified.vert">
       <Filter>Source Files\Shader Files</Filter>
     </None>
+    <None Include="model.frag" />
+    <None Include="model.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="index.png">

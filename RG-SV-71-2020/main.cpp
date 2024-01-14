@@ -379,6 +379,21 @@ int main(void)
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use the same perspective projection matrix as the unifiedShader
     glBindVertexArray(VAO[6]);
     glBindVertexArray(VAO[7]);
+
+
+
+
+
+    Model daljinski("daljinski.obj");
+    Shader modelShader("model.vert", "model.frag");
+    modelShader.use();
+    modelShader.setVec3("uLightPos", 0, 1, 3);
+    modelShader.setVec3("uViewPos", 0, 0, 5);
+    modelShader.setVec3("uLightColor", 1, 1, 1);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)wWidth / (float)wHeight, 0.1f, 100.0f);
+    modelShader.setMat4("uP", projectionP);
+    modelShader.setMat4("uV", view);
+
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
         std::cout << "OpenGL error: " << error << std::endl;
@@ -589,6 +604,7 @@ int main(void)
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 0.0f, 0.0f, 0.0f);
         }
+
         glDepthMask(GL_TRUE);
         glUseProgram(unifiedShader);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -600,6 +616,9 @@ int main(void)
         glBindVertexArray(VAO[1]); // Border TV-a
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
+
+        modelShader.setMat4("uM", model);
+        daljinski.Draw(modelShader);
 
 
         glfwSwapBuffers(window);
