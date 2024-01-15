@@ -144,15 +144,22 @@ int main(void)
 
 
     float screenVertices[] = {
-        // First Triangle
         0.9, 0.9, 0.5,  1.0, 1.0, 1.0, 0.0,
         -0.9, 0.9, 0.5,  1.0, 1.0, 1.0, 0.0,
         -0.9, -0.7, 0.5,  1.0, 1.0, 1.0, 0.0,
 
-        // Second Triangle
         -0.9, -0.7, 0.5,  1.0, 1.0, 1.0, 0.0,
         0.9, -0.7, 0.5,  1.0, 1.0, 1.0, 0.0,
         0.9, 0.9, 0.5,  1.0, 1.0, 1.0, 0.0,
+    };
+    float screenVerticez[] = {
+    0.9, 0.9, 0.5,  0.0, 0.0, 0.0, 0.0,
+    -0.9, 0.9, 0.5,  0.0, 0.0, 0.0, 0.0,
+    -0.9, -0.7, 0.5,  0.0, 0.0, 0.0, 0.0,
+
+    -0.9, -0.7, 0.5,  0.0, 0.0, 0.0, 0.0,
+    0.9, -0.7, 0.5,  0.0, 0.0, 0.0, 0.0,
+    0.9, 0.9, 0.5,  0.0, 0.0, 0.0, 0.0,
     };
 
     unsigned int stripStride = 7 * sizeof(float);
@@ -171,25 +178,44 @@ int main(void)
     }
 
 
-    float dotCircle[CRES * 2 + 4]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
-    const float dotCenterX = 0; // Centar X0
-    const float dotCenterY = 0; // Centar Y0
-    const float dotCircleRadius = 0.4;    // poluprecnik
+    float dotCircle[CRES * 3 + 6]; // +6 for x, y, and z coordinates of the center, and for x, y of the starting point
+    const float dotCenterX = 0; // Center X
+    const float dotCenterY = 0; // Center Y
+    const float dotCenterZ = 0.51; // Center Z
+    const float dotCircleRadius = 0.3; // Radius
+    const int startingIndex = 3; 
+
+    // Set center coordinates
+    //dotCircle[0] = dotCenterX;
+    //dotCircle[1] = dotCenterY;
+    //dotCircle[2] = dotCenterZ;
+
+    // Set starting point coordinates
+    dotCircle[startingIndex] = dotCircleRadius / aspectRatio; // X coordinate
+    dotCircle[startingIndex + 1] = 0; // Y coordinate
+    dotCircle[startingIndex + 2] = dotCenterZ; // Z coordinate
+
     for (int i = 0; i <= CRES; i++) {
-        dotCircle[2 + 2 * i] = (dotCircleRadius * cos((3.141592 / 180) * (i * 360 / CRES))) / aspectRatio; //Xi
-        dotCircle[2 + 2 * i + 1] = dotCircleRadius * sin((3.141592 / 180) * (i * 360 / CRES)); //Yi
+        // Calculate coordinates in 3D
+        dotCircle[startingIndex + 3 * i] = dotCenterX + dotCircleRadius * cos((3.141592 / 180) * (i * 360 / CRES)); // Xi
+        dotCircle[startingIndex + 3 * i + 1] = dotCenterY + dotCircleRadius * sin((3.141592 / 180) * (i * 360 / CRES)); // Yi
+        dotCircle[startingIndex + 3 * i + 2] = dotCenterZ; 
     }
 
-    float clockCircle[CRES * 2 + 4]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
+
+    float clockCircle[CRES * 3 + 6]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
     const float clockCenterX = 0; // Centar X0
     const float clockCenterY = 0; // Centar Y0
-    const float clockRadius = 0.5;    // poluprecnik
+    const float clockCenterZ = 0.51; // Centar Y0
+    const float clockRadius = 0.32;    // poluprecnik
     clockCircle[0] = clockCenterX; // Centar X0
     clockCircle[1] = clockCenterY; // Centar Y0
+    clockCircle[2] = clockCenterZ; // Centar Y0
 
     for (int i = 0; i <= CRES; i++) {
-        clockCircle[2 + 2 * i] = (clockRadius * cos((3.141592 / 180) * (i * 360 / CRES))) / aspectRatio; //Xi
-        clockCircle[2 + 2 * i + 1] = clockRadius * sin((3.141592 / 180) * (i * 360 / CRES)); //Yi
+        clockCircle[startingIndex + 3 * i] = clockCenterX + clockRadius * cos((3.141592 / 180) * (i * 360 / CRES)); // Xi
+        clockCircle[startingIndex + 3 * i + 1] = clockCenterY + clockRadius * sin((3.141592 / 180) * (i * 360 / CRES)); // Yi
+        clockCircle[startingIndex + 3 * i + 2] = clockCenterZ;
     }
 
     float luigiVertices[] =
@@ -255,16 +281,23 @@ int main(void)
     glBindVertexArray(VAO[2]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(dotCircle), dotCircle, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
 
     glBindVertexArray(VAO[3]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(clockCircle), clockCircle, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-
+    glBindVertexArray(VAO[4]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(screenVerticez), screenVerticez, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stripStride, (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stripStride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindVertexArray(VAO[5]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[5]);
@@ -351,14 +384,13 @@ int main(void)
     glm::mat4 model = glm::mat4(1.0f); //Matrica transformacija - mat4(1.0f) generise jedinicnu matricu
     unsigned int modelLoc = glGetUniformLocation(unifiedShader, "uM");
     glm::mat4 view = glm::mat4(1.0f);
-    view = glm::lookAt(glm::vec3(0.0f, 0.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // lookAt(Gdje je kamera, u sta kamera gleda, jedinicni vektor pozitivne Y ose svijeta  - ovo rotira kameru)
+    view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // lookAt(Gdje je kamera, u sta kamera gleda, jedinicni vektor pozitivne Y ose svijeta  - ovo rotira kameru)
     unsigned int viewLoc = glGetUniformLocation(unifiedShader, "uV");
     glm::mat4 projectionP = glm::perspective(glm::radians(90.0f), (float)wWidth / (float)wHeight, 0.0001f, 100.0f); //Matrica perspektivne projekcije
     glm::mat4 projectionO = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0001f, 100.0f); //Matrica ortogonalne projekcije
     unsigned int projectionLoc = glGetUniformLocation(unifiedShader, "uP");
 
 
-    // ++++++++++++++++++++++++++++++++++++++++++++++++++++++ RENDER LOOP - PETLJA ZA CRTANJE +++++++++++++++++++++++++++++++++++++++++++++++++
     glUseProgram(unifiedShader); // Set the unifiedShader
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -367,18 +399,25 @@ int main(void)
 
 
     glUseProgram(screenShader); // Set the screenShader
-    //unsigned int screenColorLoc = glGetUniformLocation(screenShader, "screenColor");
+    GLint isTvOnLoc = glGetUniformLocation(screenShader, "isTvOn");
+    glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 0);
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    //glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use the same perspective projection matrix as the unifiedShader
-    glBindVertexArray(VAO[1]);
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); 
+    
+
+    glUseProgram(channel2Shader); // Set the channel2Shader
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use perspective projection matrix
+
+
 
     glUseProgram(playerShader); // Set the screenShader
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use the same perspective projection matrix as the unifiedShader
-    glBindVertexArray(VAO[6]);
-    glBindVertexArray(VAO[7]);
+
 
 
 
@@ -390,9 +429,13 @@ int main(void)
     modelShader.setVec3("uLightPos", 0, 1, 3);
     modelShader.setVec3("uViewPos", 0, 0, 5);
     modelShader.setVec3("uLightColor", 1, 1, 1);
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)wWidth / (float)wHeight, 0.1f, 100.0f);
     modelShader.setMat4("uP", projectionP);
     modelShader.setMat4("uV", view);
+
+
+
+
+
 
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
@@ -413,7 +456,11 @@ int main(void)
     int currentChannel = 3;
     float p1x = 0;
     float p2x = 0;
-
+    float daljinskiX = 0.8;
+    float daljinskiY = -9;
+    float daljinskiZ = 1;
+    float daljinskiRotateX = -93;
+    float daljisnkiRotateY = 313;
 
 
     while (!glfwWindowShouldClose(window))
@@ -429,38 +476,48 @@ int main(void)
         {
             glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionO));
         }
+        // Move the camera left (G key)
         if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
         {
-            view = glm::rotate(view, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            view = glm::translate(view, -0.01f * glm::vec3(1.0f, 0.0f, 0.0f)); // Move along the up vector
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         }
 
-        // Rotate the camera right (D key)
+        // Move the camera right (J key)
         if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
         {
-            view = glm::rotate(view, glm::radians(-1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            view = glm::translate(view, 0.01f * glm::vec3(1.0f, 0.0f, 0.0f)); // Move along the up vector
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         }
 
-        // Rotate the camera up (W key)
+        // Move the camera up (Y key)
         if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
         {
-            view = glm::rotate(view, glm::radians(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            view = glm::translate(view, 0.01f * glm::vec3(0.0f, 1.0f, 0.0f)); // Move along the up vector
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         }
 
-        // Rotate the camera down (S key)
+        // Move the camera down (H key)
         if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
         {
-            view = glm::rotate(view, glm::radians(-1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            view = glm::translate(view, -0.01f * glm::vec3(0.0f, 1.0f, 0.0f)); // Move along the down vector
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         }
+
+        // Zoom in (Z key)
         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         {
-            glm::vec3 forward = glm::normalize(glm::vec3(view[2])); // Extract the forward vector from the view matrix
-            view = glm::translate(view, 0.01f * forward); // Move along the forward vector
+            view = glm::translate(view, -0.01f * glm::vec3(view[2])); // Move along the forward vector (zoom in)
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         }
+
+        // Zoom out (X key)
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        {
+            view = glm::translate(view, 0.01f * glm::vec3(view[2])); // Move along the backward vector (zoom out)
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        }
+
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         {
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -470,13 +527,7 @@ int main(void)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
 
-        // Move the camera backward (S key)
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-        {
-            glm::vec3 backward = -glm::normalize(glm::vec3(view[2])); // Extract the backward vector from the view matrix
-            view = glm::translate(view, 0.01f * backward); // Move along the backward vector
-            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        }
+
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -560,21 +611,77 @@ int main(void)
 
             }
         }
+        if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+        {
+            daljinskiX += 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
+        {
+            daljinskiX -= 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS)
+        {
+            daljinskiY += 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS)
+        {
+            daljinskiY -= 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS)
+        {
+            daljinskiRotateX += 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
+        {
+            daljinskiRotateX -= 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)
+        {
+            daljisnkiRotateY += 0.1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS)
+        {
+            daljisnkiRotateY -= 0.1;
+        }
+        //std::cout << "daljinskiX: " << daljinskiX << std::endl;
+        //std::cout << "daljinskiY: " << daljinskiY << std::endl;
+        //std::cout << "daljinskiRotateX: " << daljinskiRotateX << std::endl;
+        //std::cout << "daljisnkiRotateY: " << daljisnkiRotateY << std::endl;
+
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Osvjezavamo i Z bafer i bafer boje
+        glDepthMask(GL_TRUE);
+        glUseProgram(unifiedShader);
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glBindVertexArray(VAO[0]); // Border TV-a
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
 
 
 
-        if (isTVOn) {
-            glClearColor(1.0, 1.0, 1.0, 1.0); // White background
-        }
-        else {
-            glClearColor(0.0, 0.0, 0.0, 1.0); // Black background
-        }
         if (isTVOn)
         {
-            glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             glUseProgram(screenShader);
-            glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 1.0f, 1.0f, 1.0f);
+            glBindVertexArray(VAO[1]); 
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
+            if (currentChannel == 1) {
+                glUseProgram(unifiedShader);
+                glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+                glBindVertexArray(VAO[3]);
+                glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(dotCircle) / (2 * sizeof(float)));
+
+            }
+            if (currentChannel == 2) {
+                glUseProgram(channel2Shader);
+                glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+                glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+                glEnable(GL_PROGRAM_POINT_SIZE);
+                glBindVertexArray(VAO[2]);
+                glPointSize(2.0f); // triangle point size forming a circle
+                glDrawArrays(GL_TRIANGLES, 0, sizeof(dotCircle) / (2 * sizeof(float)));
+                glDisable(GL_PROGRAM_POINT_SIZE);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
             if (currentChannel == 3) {
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -602,23 +709,40 @@ int main(void)
         else
         {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glUniform3f(glGetUniformLocation(screenShader, "screenColor"), 0.0f, 0.0f, 0.0f);
+            glUseProgram(unifiedShader);
+            glBindVertexArray(VAO[4]);
+            glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
         }
+        
+        
 
-        glDepthMask(GL_TRUE);
-        glUseProgram(unifiedShader);
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glBindVertexArray(VAO[0]); // Border TV-a
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
 
-        glUseProgram(unifiedShader);
-        //glUniform4f(screenColorLoc, 1.0f, 0.0f, 0.0f, 0.0f);
-        glBindVertexArray(VAO[1]); // Border TV-a
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
 
-        modelShader.setMat4("uM", model);
-        daljinski.Draw(modelShader);
+        
+        modelShader.use();
+        glm::mat4 modelMatrix = glm::mat4(1.0f);
+        glm::vec3 translationFactors(daljinskiX, -7.0f, daljinskiY);
+        glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), translationFactors);
+        modelMatrix = translationMatrix * modelMatrix;
+
+        float angleInRadiansX = glm::radians(daljinskiRotateX);
+        float angleInRadiansY = glm::radians(daljisnkiRotateY);
+        glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), angleInRadiansX, glm::vec3(1.0f, 0.0f, 0.0f));
+        glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), angleInRadiansY, glm::vec3(0.0f, 0.0f, 1.0f));
+        modelMatrix = rotationMatrixX * rotationMatrixY * modelMatrix;
+
+        glm::vec3 scaleFactors(0.3f, 0.3f, 0.3f);
+        glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scaleFactors);
+        modelMatrix = scaleMatrix * modelMatrix;
+
+        modelShader.setMat4("uM", modelMatrix);
+        modelShader.setMat4("uV", view);
+        modelShader.setMat4("uP", projectionP);
+        daljinski.Draw(modelShader, modelMatrix);
+        
+
+       
 
 
         glfwSwapBuffers(window);

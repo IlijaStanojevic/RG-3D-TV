@@ -68,6 +68,8 @@
     </None>
     <None Include="model.frag" />
     <None Include="model.vert" />
+    <None Include="phong.vert" />
+    <None Include="phong.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="index.png">

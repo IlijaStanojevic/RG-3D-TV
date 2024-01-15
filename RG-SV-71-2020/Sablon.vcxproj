@@ -154,6 +154,8 @@
     <None Include="model.frag" />
     <None Include="model.vert" />
     <None Include="packages.config" />
+    <None Include="phong.frag" />
+    <None Include="phong.vert" />
     <None Include="player.frag" />
     <None Include="player.vert" />
     <None Include="screen.frag" />
