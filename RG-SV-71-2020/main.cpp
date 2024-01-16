@@ -28,6 +28,9 @@
 unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
 static unsigned loadImageToTexture(const char* filePath);
+bool isAngleLessThan60Degrees(float remoteX, float remoteY, float remoteZ,
+    float remoteRotateX, float remoteRotateY,
+    float signalX, float signalY, float signalZ);
 
 int main(void)
 {
@@ -426,8 +429,8 @@ int main(void)
     Model daljinski("daljinski.obj");
     Shader modelShader("model.vert", "model.frag");
     modelShader.use();
-    modelShader.setVec3("uLightPos", 0, 1, 3);
-    modelShader.setVec3("uViewPos", 0, 0, 5);
+    modelShader.setVec3("uLightPos", 0, 1, 0.5);
+    modelShader.setVec3("uViewPos", 0, 0, 0.5);
     modelShader.setVec3("uLightColor", 1, 1, 1);
     modelShader.setMat4("uP", projectionP);
     modelShader.setMat4("uV", view);
@@ -544,6 +547,8 @@ int main(void)
         {
             isTVOn = false;
         }
+        //isAngleLessThan60Degrees(daljinskiX, daljinskiY, daljinskiZ,
+         //   daljinskiRotateX, daljisnkiRotateY, 0.0, -0.9, 0.5)
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
         {
             if (isTVOn) {
@@ -739,6 +744,16 @@ int main(void)
         modelShader.setMat4("uM", modelMatrix);
         modelShader.setMat4("uV", view);
         modelShader.setMat4("uP", projectionP);
+        if (isTVOn) {
+            modelShader.setVec3("uLightPos", 0, 1, 0.5);
+            modelShader.setVec3("uViewPos", 0, 0, 5);
+            modelShader.setVec3("uLightColor", 1, 1, 1);
+        }
+        else {
+            modelShader.setVec3("uLightPos", 0, 1, 0.5);
+            modelShader.setVec3("uViewPos", 0, 0, 5);
+            modelShader.setVec3("uLightColor", 0.2*currentChannel, 0.2* currentChannel, 0.2* currentChannel);
+        }
         daljinski.Draw(modelShader, modelMatrix);
         
 
@@ -800,6 +815,30 @@ unsigned int compileShader(GLenum type, const char* source)
     }
     return shader;
 }
+bool isAngleLessThan60Degrees(float remoteX, float remoteY, float remoteZ,
+    float remoteRotateX, float remoteRotateY,
+    float signalX, float signalY, float signalZ) {
+    // Remote position
+    glm::vec3 remotePosition(remoteX, remoteY, remoteZ);
+
+    float angleInRadiansX = glm::radians(remoteRotateX);
+    float angleInRadiansY = glm::radians(remoteRotateY);
+
+    glm::vec3 remoteDirection(
+        glm::cos(angleInRadiansY) * glm::cos(angleInRadiansX),
+        glm::sin(angleInRadiansY) * glm::cos(angleInRadiansX),
+        glm::sin(angleInRadiansX)
+    );
+
+    glm::vec3 signalDirection = glm::normalize(glm::vec3(signalX, signalY, signalZ) - remotePosition);
+
+    float dotProduct = glm::dot(remoteDirection, signalDirection);
+
+    float angleInDegrees = glm::degrees(glm::acos(dotProduct));
+
+    return angleInDegrees < 60.0f;
+}
+
 unsigned int createShader(const char* vsSource, const char* fsSource)
 {
 
