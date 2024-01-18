@@ -84,13 +84,13 @@ int main(void)
 
     float indexVertices[] =
     {   //X      Y      S    T 
-        0.5,    1.0, 0.0,   0.0, 1.0, // Top-left
-        0.5,    0.9,0.0,   0.0, 0.0, // Bottom-left
-        1,    0.9,  0.0, 1.0, 0.0, // Bottom-right
+        0.5,    1.0, 0.1,   0.0, 1.0, // Top-left
+        0.5,    0.8,0.1,   0.0, 0.0, // Bottom-left
+        1,    0.8,  0.1, 1.0, 0.0, // Bottom-right
 
-        0.5,    1.0,0.0,   0.0, 1.0, // Top-left
-        1,    0.9,0.0,   1.0, 0.0, // Bottom-right
-        1,    1.0,0.0,   1.0, 1.0  // Top-right
+        0.5,    1.0,0.1,   0.0, 1.0, // Top-left
+        1,    0.8,0.1,   1.0, 0.0, // Bottom-right
+        1,    1.0,0.1,   1.0, 1.0  // Top-right
     };
 
 
@@ -221,14 +221,14 @@ int main(void)
     
 
 
-    float dotCircle[CRES * 3 + 6]; // +6 for x, y, and z coordinates of the center, and for x, y of the starting point
+    float dotCircle[CRES * 3 + 6]; 
     const float dotCenterX = 0; // Center X
     const float dotCenterY = 0; // Center Y
     const float dotCenterZ = 0.5; // Center Z
-    const float dotCircleRadius = 0.3; // Radius
+    const float dotCircleRadius = 0.3; 
     const int startingIndex = 3; 
 
-    // Set center coordinates
+
     //dotCircle[0] = dotCenterX;
     //dotCircle[1] = dotCenterY;
     //dotCircle[2] = dotCenterZ;
@@ -264,7 +264,7 @@ int main(void)
         clockCenterX, clockCenterY, clockCenterZ, 1.0, 0.0, 0.0, 0.0,
         0.32, 0.32, clockCenterZ, 1.0, 0.0, 0.0, 0.0,
     };
-    float signalCircle[CRES * 3 + 6]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
+    float signalCircle[CRES * 3 + 6]; 
     const float signalCenterX = 0.2; // Centar X0
     const float signalCenterY = -0.8; // Centar Y0
     const float signalCenterZ = 0.5; // Centar Y0
@@ -317,10 +317,10 @@ int main(void)
 
 
 
-    unsigned VAO[11]; //0 = TV border, 1= button, 2= dot circle, 3= clock circle,4= clock needle, 5= marka texture, 6= luigi(p2), 7= mario(p1), 8= index gore levo
-    glGenVertexArrays(11, VAO);
-    unsigned VBO[11];
-    glGenBuffers(11, VBO);
+    unsigned VAO[12]; //0 = TV border, 1= button, 2= dot circle, 3= clock circle,4= clock needle, 5= marka texture, 6= luigi(p2), 7= mario(p1), 8= index gore levo
+    glGenVertexArrays(12, VAO);
+    unsigned VBO[12];
+    glGenBuffers(12, VBO);
 
 
     glBindVertexArray(VAO[0]);
@@ -424,24 +424,30 @@ int main(void)
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stripStride, (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-
+    glBindVertexArray(VAO[11]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[11]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(indexVertices), indexVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, indexStride, (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
 
     unsigned indexTexture = loadImageToTexture("index.png"); //Ucitavamo teksturu
     unsigned int marioTexture = loadImageToTexture("mario.png");
     unsigned int luigiTexture = loadImageToTexture("luigi.png");
-    glBindTexture(GL_TEXTURE_2D, indexTexture); //Podesavamo teksturu
-    glGenerateMipmap(GL_TEXTURE_2D); //Generisemo mipmape 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);//S = U = X    GL_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);// T = V = Y
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);   //GL_NEAREST, GL_LINEAR
+    glBindTexture(GL_TEXTURE_2D, indexTexture); //Podesavamo teksturu
+    glGenerateMipmap(GL_TEXTURE_2D); //Generisemo mipmape 
+
     glBindTexture(GL_TEXTURE_2D, 0);
     unsigned uTexLoc = glGetUniformLocation(textureShader, "uTex");
-    glUniform1i(uTexLoc, 0); // Indeks teksturne jedinice (sa koje teksture ce se citati boje)
-    //Odnosi se na glActiveTexture(GL_TEXTURE0) u render petlji
-    //Moguce je sabirati indekse, tj GL_TEXTURE5 se moze dobiti sa GL_TEXTURE0 + 5 , sto je korisno za iteriranje kroz petlje
-
+    glUniform1i(uTexLoc, 0); 
     glBindTexture(GL_TEXTURE_2D, marioTexture); //Podesavamo teksturu
     glGenerateMipmap(GL_TEXTURE_2D); //Generisemo mipmape 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);//S = U = X    GL_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER
@@ -477,7 +483,7 @@ int main(void)
     glUseProgram(unifiedShader); // Set the unifiedShader
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use perspective projection matrix
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); 
     glBindVertexArray(VAO[0]);
 
 
@@ -489,10 +495,10 @@ int main(void)
     glUniformMatrix4fv(glGetUniformLocation(screenShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
     
 
-    glUseProgram(channel2Shader); // Set the channel2Shader
+    glUseProgram(channel2Shader); 
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); // Use perspective projection matrix
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP)); 
 
 
 
@@ -544,7 +550,6 @@ int main(void)
     }
     
 
-    // Swap buffers and poll events
     glfwSwapBuffers(window);
     glfwPollEvents();
 
@@ -572,6 +577,9 @@ int main(void)
     const float maxY = 2.0f;
     const float minY = -2.0f;
 
+    glm::mat4 currentProjection = projectionP;
+
+
     while (!glfwWindowShouldClose(window))
     {
         //std::cout << "daljinskiX: " << daljinskiX << std::endl;
@@ -592,86 +600,69 @@ int main(void)
         }
         if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
         {
-            // Move along the up vector
             view = glm::translate(view, -0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
 
-            // Check if within bounds
             if (glm::translate(view, glm::vec3(-0.01f, 0.0f, 0.0f))[3][0] > minX)
             {
                 glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
             }
             else
             {
-                // Undo the translation if out of bounds
                 view = glm::translate(view, 0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
             }
         }
 
-        // Move the camera right (J key)
         if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
         {
-            // Move along the up vector
             view = glm::translate(view, 0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
 
-            // Check if within bounds
             if (glm::translate(view, glm::vec3(0.01f, 0.0f, 0.0f))[3][0] < maxX)
             {
                 glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
             }
             else
             {
-                // Undo the translation if out of bounds
                 view = glm::translate(view, -0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
             }
         }
-
-        // Move the camera up (Y key)
         if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)
         {
-            // Move along the up vector
             view = glm::translate(view, 0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
 
-            // Check if within bounds
             if (glm::translate(view, glm::vec3(0.0f, 0.01f, 0.0f))[3][1] < maxY)
             {
                 glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
             }
             else
             {
-                // Undo the translation if out of bounds
                 view = glm::translate(view, -0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
             }
         }
 
-        // Move the camera down (H key)
         if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
         {
-            // Move along the down vector
             view = glm::translate(view, -0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
-
-            // Check if within bounds
             if (glm::translate(view, glm::vec3(0.0f, -0.01f, 0.0f))[3][1] > minY)
             {
                 glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
             }
             else
             {
-                // Undo the translation if out of bounds
                 view = glm::translate(view, 0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
             }
         }
 
-        // Zoom in (Z key)
+        // Zoom in 
         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
         {
-            view = glm::translate(view, -0.01f * glm::vec3(view[2])); // Move along the forward vector (zoom in)
+            view = glm::translate(view, -0.01f * glm::vec3(view[2])); 
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         }
 
-        // Zoom out (X key)
+        // Zoom out 
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         {
-            view = glm::translate(view, 0.01f * glm::vec3(view[2])); // Move along the backward vector (zoom out)
+            view = glm::translate(view, 0.01f * glm::vec3(view[2])); 
             glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         }
 
@@ -824,8 +815,16 @@ int main(void)
         glBindVertexArray(VAO[0]); // Border TV-a
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
 
-        //glBindVertexArray(VAO[10]); 
-        //glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(floorVertices) / stripStride);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glUseProgram(textureShader);
+        glBindVertexArray(VAO[11]);
+        glActiveTexture(GL_TEXTURE0); 
+        glBindTexture(GL_TEXTURE_2D, indexTexture);
+        glUniform1i(uTexLoc, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_BLEND);
 
 
 
@@ -927,16 +926,21 @@ int main(void)
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glUseProgram(playerShader);
+                glUniformMatrix4fv(glGetUniformLocation(playerShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
+                glUniformMatrix4fv(glGetUniformLocation(playerShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(playerShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
+                glUniform1f(p1xLoc, p2x);
+                glUniform1f(p2xLoc, p1x);
                 glBindVertexArray(VAO[7]);
                 glActiveTexture(GL_TEXTURE0); // mario textura
                 glBindTexture(GL_TEXTURE_2D, marioTexture);
                 glUniform1i(uTexLoc, 0);
                 glDrawArrays(GL_TRIANGLES, 0, 6);
                 glBindTexture(GL_TEXTURE_2D, 0);
-                glDisable(GL_BLEND);
+                //glDisable(GL_BLEND);
 
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                //glEnable(GL_BLEND);
+                //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glUseProgram(playerShader);
                 glBindVertexArray(VAO[6]);
                 glActiveTexture(GL_TEXTURE0); // luigi textura

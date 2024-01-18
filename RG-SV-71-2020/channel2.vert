@@ -12,6 +12,6 @@ uniform mat4 uP;
 
 void main()
 {
-    gl_Position = uP*uM*uV*vec4(inPos, 1.0); // Updated to include Z coordinate
+    gl_Position = uP*uM*uV*vec4(inPos, 1.0); 
     chCol = inCol;
 }
