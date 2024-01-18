@@ -42,22 +42,12 @@ public:
     }
 
     // draws the model, and thus all its meshes
-    void Draw(Shader& shader, const glm::mat4& modelMatrix)
+    void Draw(Shader& shader)
     {
         for (unsigned int i = 0; i < meshes.size(); i++) {
-            glm::mat4 transformedModelMatrix = modelMatrix;
 
-            // Apply scaling to the model matrix
-            glm::vec3 scaleFactors(0.5f, 0.5f, 0.5f);
-            glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scaleFactors);
-            transformedModelMatrix = scaleMatrix * transformedModelMatrix;
 
-            // Apply rotation to the model matrix
-            float angleInRadians = glm::radians(45.0f);
-            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleInRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-            transformedModelMatrix = rotationMatrix * transformedModelMatrix;
-
-            meshes[i].Draw(shader, transformedModelMatrix);
+            meshes[i].Draw(shader);
         }
             
     }

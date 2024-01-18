@@ -31,7 +31,7 @@ static unsigned loadImageToTexture(const char* filePath);
 bool isAngleLessThan60Degrees(float remoteX, float remoteY, float remoteZ,
     float remoteRotateX, float remoteRotateY,
     float signalX, float signalY, float signalZ);
-float channelLight(int channel);
+float channelLight(int channel, float p1x, float p2x);
 
 int main(void)
 {
@@ -482,11 +482,11 @@ int main(void)
     int currentChannel = 3;
     float p1x = 0;
     float p2x = 0;
-    float daljinskiX = 0.8;
+    float daljinskiX = 2;
     float daljinskiY = -9;
-    float daljinskiZ = 1;
+    float daljinskiZ = -12.0;
     float daljinskiRotateX = -93;
-    float daljisnkiRotateY = 313;
+    float daljisnkiRotateY = 0;
     bool changeChannel = false;
     double channelSwitchTime = 0.0;
     const double delayDuration = 0.5;
@@ -499,6 +499,11 @@ int main(void)
 
     while (!glfwWindowShouldClose(window))
     {
+        //std::cout << "daljinskiX: " << daljinskiX << std::endl;
+        //std::cout << "daljinskiY: " << daljinskiY << std::endl;
+        //std::cout << "daljinskiRotateX: " << daljinskiRotateX << std::endl;
+        //std::cout << "daljisnkiRotateY: " << daljisnkiRotateY << std::endl;
+        //std::cout << "lightValue: " << lightValue << std::endl;
         glEnable(GL_DEPTH_TEST);
         //glEnable(GL_CULL_FACE);
         glfwPollEvents();
@@ -629,7 +634,7 @@ int main(void)
                 currentChannel = 1;
                 changeChannel = true;
                 channelSwitchTime = glfwGetTime();
-                lightValue = channelLight(1);
+                lightValue = channelLight(1, p1x, p2x);
             }
         }
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
@@ -638,7 +643,7 @@ int main(void)
                 currentChannel = 2;
                 changeChannel = true;
                 channelSwitchTime = glfwGetTime();
-                lightValue = channelLight(2);
+                lightValue = channelLight(2, p1x, p2x);
             }
         }
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
@@ -647,7 +652,7 @@ int main(void)
                 currentChannel = 3;
                 changeChannel = true;
                 channelSwitchTime = glfwGetTime();
-                lightValue = channelLight(3);
+                lightValue = channelLight(3, p1x, p2x);
             }
         }
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -658,6 +663,7 @@ int main(void)
                     if (p1x <= -0.5) {
                         p1x = -0.5;
                     }
+                    lightValue = channelLight(3, p1x, p2x);
                 }
 
             }
@@ -670,6 +676,7 @@ int main(void)
                     if (p1x >= 0.3) {
                         p1x = 0.3;
                     }
+                    lightValue = channelLight(3, p1x, p2x);
                 }
 
             }
@@ -683,6 +690,7 @@ int main(void)
                     if (p2x >= 0.5) {
                         p2x = 0.5;
                     }
+                    lightValue = channelLight(3, p1x, p2x);
                 }
 
             }
@@ -695,6 +703,7 @@ int main(void)
                     if (p2x <= -0.3) {
                         p2x = -0.3;
                     }
+                    lightValue = channelLight(3, p1x, p2x);
                 }
 
             }
@@ -761,7 +770,7 @@ int main(void)
                 glUniformMatrix4fv(glGetUniformLocation(screenShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
                 glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 0);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
-                lightValue = channelLight(currentChannel);
+                lightValue = channelLight(currentChannel, p1x, p2x);
                 changeChannel = false;
             }
         }
@@ -773,7 +782,7 @@ int main(void)
                 glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 0);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
                 if (currentChannel == 3) {
-                    lightValue = channelLight(currentChannel);
+                    lightValue = channelLight(currentChannel, p1x, p2x);
                 }
                 glUseProgram(lightShader);
                 glUniform1i(glGetUniformLocation(lightShader, "state"), 1);
@@ -866,7 +875,7 @@ int main(void)
         
         modelShader.use();
         glm::mat4 modelMatrix = glm::mat4(1.0f);
-        glm::vec3 translationFactors(daljinskiX, -7.0f, daljinskiY);
+        glm::vec3 translationFactors(daljinskiX, daljinskiZ, daljinskiY);
         glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), translationFactors);
         modelMatrix = translationMatrix * modelMatrix;
 
@@ -876,7 +885,7 @@ int main(void)
         glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), angleInRadiansY, glm::vec3(0.0f, 0.0f, 1.0f));
         modelMatrix = rotationMatrixX * rotationMatrixY * modelMatrix;
 
-        glm::vec3 scaleFactors(0.3f, 0.3f, 0.3f);
+        glm::vec3 scaleFactors(0.1f, 0.1f, 0.1f);
         glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), scaleFactors);
         modelMatrix = scaleMatrix * modelMatrix;
 
@@ -893,7 +902,7 @@ int main(void)
             modelShader.setVec3("uViewPos", 0, 0, 5);
             modelShader.setVec3("uLightColor", 0.1, 0.1, 0.1);
         }
-        daljinski.Draw(modelShader, modelMatrix);
+        daljinski.Draw(modelShader);
         
 
        
@@ -954,7 +963,7 @@ unsigned int compileShader(GLenum type, const char* source)
     }
     return shader;
 }
-float channelLight(int channel) {
+float channelLight(int channel, float p1x, float p2x) {
     if (channel == 1) {
         return 0.4;
     }
@@ -962,7 +971,17 @@ float channelLight(int channel) {
         return 1.0;
     }
     else {
-        return 0.5;
+        p1x = -0.4 + p1x;
+        p2x = 0.4 + p2x;
+        float distance = std::abs(p2x) + std::abs(p1x);
+        float minDistance = 0.2;
+        float maxDistance = 1.8;
+        float maxScale = 1.0;
+        float minScale = 0.1;
+        // Scale the distance to the range [minScale, maxScale]
+        float scaledDistance = minScale + (maxScale - minScale) * (1.0 - (distance - minDistance) / (maxDistance - minDistance));
+
+        return scaledDistance;
     }
 }
 bool isAngleLessThan60Degrees(float remoteX, float remoteY, float remoteZ,
