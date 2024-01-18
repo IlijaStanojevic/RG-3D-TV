@@ -233,13 +233,11 @@ int main(void)
     //dotCircle[1] = dotCenterY;
     //dotCircle[2] = dotCenterZ;
 
-    // Set starting point coordinates
-    dotCircle[startingIndex] = dotCircleRadius; // X coordinate
+    // Set starting point coordinatess; // X coordinate
     dotCircle[startingIndex + 1] = 0; // Y coordinate
     dotCircle[startingIndex + 2] = dotCenterZ; // Z coordinate
 
     for (int i = 0; i <= CRES; i++) {
-        // Calculate coordinates in 3D
         dotCircle[startingIndex + 3 * i] = dotCenterX + dotCircleRadius * cos((3.141592 / 180) * (i * 360 / CRES)); // Xi
         dotCircle[startingIndex + 3 * i + 1] = dotCenterY + dotCircleRadius * sin((3.141592 / 180) * (i * 360 / CRES)); // Yi
         dotCircle[startingIndex + 3 * i + 2] = dotCenterZ; 
@@ -303,13 +301,13 @@ int main(void)
     };
 
     float floorVertices[] = {
-    2, -1, 2,  0.0, 0.4, 0.0, 0.0,
-    -2, -1, 2,  0.0, 0.4, 0.0, 0.0,
-    -2, -1, -2,  0.0, 0.4, 0.0, 0.0,
+    2.5, -1, 3,  0.0, 0.4, 0.0, 0.0,
+    -2.5, -1, 3,  0.0, 0.4, 0.0, 0.0,
+    -2.5, -1, -3,  0.0, 0.4, 0.0, 0.0,
 
-    -2, -1, -2,  0.0, 0.4, 0.0, 0.0,
-    2, -1, -2,  0.0, 0.4, 0.0, 0.0,
-    2, -1, 2,  0.0, 0.4, 0.0, 0.0,
+    -2.5, -1, -3,  0.0, 0.4, 0.0, 0.0,
+    2.5, -1, -3,  0.0, 0.4, 0.0, 0.0,
+    2.5, -1, 3,  0.0, 0.4, 0.0, 0.0,
     };
 
 
@@ -317,7 +315,7 @@ int main(void)
 
 
 
-    unsigned VAO[12]; //0 = TV border, 1= button, 2= dot circle, 3= clock circle,4= clock needle, 5= marka texture, 6= luigi(p2), 7= mario(p1), 8= index gore levo
+    unsigned VAO[12]; //0 = TV box, 1= screen, 2= dot circle, 3= clock circle,4= clock needle, 5= marka texture, 6= luigi(p2), 7= mario(p1), 8= signal, 9= button, 10= floor, 11= index
     glGenVertexArrays(12, VAO);
     unsigned VBO[12];
     glGenBuffers(12, VBO);
@@ -574,7 +572,7 @@ int main(void)
 
     const float maxX = 3.0f;
     const float minX = -3.0f;
-    const float maxY = 2.0f;
+    const float maxY = 0.7f;
     const float minY = -2.0f;
 
     glm::mat4 currentProjection = projectionP;
@@ -592,11 +590,13 @@ int main(void)
         glfwPollEvents();
         if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
         {
-            glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP));
+            currentProjection = projectionP;
+            //glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionP));
         }
         if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
         {
-            glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionO));
+            currentProjection = projectionO;
+            //glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionO));
         }
         if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
         {
@@ -812,6 +812,7 @@ int main(void)
         glDepthMask(GL_TRUE);
         glUseProgram(unifiedShader);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(currentProjection));
         glBindVertexArray(VAO[0]); // Border TV-a
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
 
@@ -830,6 +831,7 @@ int main(void)
 
         glUseProgram(channel2Shader);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(channel2Shader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
         glBindVertexArray(VAO[9]);
         //glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(buttonVertices) / stripStride);
 
@@ -838,18 +840,21 @@ int main(void)
                 glUseProgram(screenShader);
                 glBindVertexArray(VAO[1]);
                 glUniformMatrix4fv(glGetUniformLocation(screenShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(screenShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 1);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
                 lightValue = 0.1;
                 glUseProgram(signalShader);
                 glUniform1i(glGetUniformLocation(signalShader, "state"), 2);
                 glUniformMatrix4fv(glGetUniformLocation(signalShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(signalShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glBindVertexArray(VAO[8]);
                 glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(dotCircle) / (2 * sizeof(float)));
             }else {
                 glUseProgram(screenShader);
                 glBindVertexArray(VAO[1]);
                 glUniformMatrix4fv(glGetUniformLocation(screenShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(screenShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 0);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
                 lightValue = channelLight(currentChannel, p1x, p2x);
@@ -861,6 +866,7 @@ int main(void)
                 glUseProgram(screenShader);
                 glBindVertexArray(VAO[1]);
                 glUniformMatrix4fv(glGetUniformLocation(screenShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(screenShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 0);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
                 if (currentChannel == 3) {
@@ -869,6 +875,7 @@ int main(void)
                 glUseProgram(signalShader);
                 glUniform1i(glGetUniformLocation(signalShader, "state"), 1);
                 glUniformMatrix4fv(glGetUniformLocation(signalShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(signalShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glBindVertexArray(VAO[8]);
                 glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(dotCircle) / (2 * sizeof(float)));
                 
@@ -877,11 +884,13 @@ int main(void)
                 glUseProgram(screenShader);
                 glBindVertexArray(VAO[1]);
                 glUniformMatrix4fv(glGetUniformLocation(screenShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(screenShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 1);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
                 glUseProgram(signalShader);
                 glUniform1i(glGetUniformLocation(signalShader, "state"), 0);
                 glUniformMatrix4fv(glGetUniformLocation(signalShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(signalShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glBindVertexArray(VAO[8]);
                 glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(dotCircle) / (2 * sizeof(float)));
             }
@@ -903,6 +912,7 @@ int main(void)
                 glUniform2f(glGetUniformLocation(clockShader, "rotationCenter"), clockCenterX, clockCenterY);
                 glUniform1f(glGetUniformLocation(clockShader, "rotationAngle"), glfwGetTime());
                 glUniformMatrix4fv(glGetUniformLocation(clockShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(glGetUniformLocation(clockShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glBindVertexArray(VAO[4]);
                 glEnable(GL_LINE_WIDTH);
                 glLineWidth(5.0f);
@@ -913,6 +923,7 @@ int main(void)
             if (currentChannel == 2) {
                 glUseProgram(channel2Shader);
                 glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+                glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
                 glEnable(GL_PROGRAM_POINT_SIZE);
                 glBindVertexArray(VAO[2]);
@@ -928,7 +939,7 @@ int main(void)
                 glUseProgram(playerShader);
                 glUniformMatrix4fv(glGetUniformLocation(playerShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
                 glUniformMatrix4fv(glGetUniformLocation(playerShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
-                glUniformMatrix4fv(glGetUniformLocation(playerShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
+                glUniformMatrix4fv(glGetUniformLocation(playerShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
                 glUniform1f(p1xLoc, p2x);
                 glUniform1f(p2xLoc, p1x);
                 glBindVertexArray(VAO[7]);
@@ -964,7 +975,7 @@ int main(void)
         if (isTVOn) {
             glUniformMatrix4fv(glGetUniformLocation(phongShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(phongShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
+            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
             glm::vec3 cameraPosition = glm::inverse(view)[3];
             glUniform3f(glGetUniformLocation(phongShader, "uViewPos"), cameraPosition.x, cameraPosition.y, cameraPosition.z); //Isto kao i pozicija kamere
 
@@ -982,7 +993,7 @@ int main(void)
         else {
             glUniformMatrix4fv(glGetUniformLocation(phongShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(phongShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
-            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
+            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
 
             glUniform3f(glGetUniformLocation(phongShader, "uViewPos"), 0.0, 0.0, 2.0); //Isto kao i pozicija kamere
 
@@ -1017,7 +1028,7 @@ int main(void)
 
         modelShader.setMat4("uM", modelMatrix);
         modelShader.setMat4("uV", view);
-        modelShader.setMat4("uP", projectionP);
+        modelShader.setMat4("uP", currentProjection);
         if (isTVOn) {
             modelShader.setVec3("uLightPos", 0, 1, 0.5);
             modelShader.setVec3("uViewPos", glm::vec3(view[3]));
