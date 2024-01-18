@@ -83,7 +83,7 @@ int main(void)
 
 
     float indexVertices[] =
-    {   //X      Y      S    T 
+    {   //X      Y     Z    S    T 
         0.5,    1.0, 0.1,   0.0, 1.0, // Top-left
         0.5,    0.8,0.1,   0.0, 0.0, // Bottom-left
         1,    0.8,  0.1, 1.0, 0.0, // Bottom-right
@@ -93,56 +93,31 @@ int main(void)
         1,    1.0,0.1,   1.0, 1.0  // Top-right
     };
 
-
-
-
-
-    float markaVertices[] =
-    {   //X      Y      S    T 
-        -0.5,    -1.0,0.0,   0.0, -1.0, // Top-left
-        -0.5,    -0.7,0.0,   0.0, 0.0, // Bottom-left
-        0.5,    -0.7, 0.0,  1.0, 0.0, // Bottom-right
-
-        -0.5,    -1.0,0.0,   0.0, -1.0, // Top-left
-        0.5,    -0.7,0.0,   1.0, 0.0, // Bottom-right
-        0.5,    -1.0,0.0,   1.0, -1.0  // Top-right
-    };
     unsigned int indexStride = (3 + 2) * sizeof(float);
 
 
     //okvir TV-a
     float stripVertices[] = {
-        // Front face
         1.0, 1.0, 0.5,  0.5, 0.5, 0.5, 0.0,
         -1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
         1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
         -1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
-
-        // Left side
         -1.0, 1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
         -1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
         -1.0, -1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
         -1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
-
-        // Right side
         1.0, 1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
         1.0, 1.0, 0.5,  0.5, 0.5, 0.5, 0.0,
         1.0, -1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
         1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
-
-        // Back face
         -1.0, 1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
         1.0, 1.0, 0.0,   0.5, 0.5, 0.5, 0.0,
         -1.0, -1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
         1.0, -1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
-
-        // Bottom face
         -1.0, -1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
         1.0, -1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
         -1.0, -1.0, 0.5, 0.5, 0.5, 0.5, 0.0,
         1.0, -1.0, 0.5,  0.5, 0.5, 0.5, 0.0,
-
-        // Top face
         1.0, 1.0, 0.0,  0.5, 0.5, 0.5, 0.0,
         -1.0, 1.0, 0.0, 0.5, 0.5, 0.5, 0.0,
         1.0, 1.0, 0.5,  0.5, 0.5, 0.5, 0.0,
@@ -164,59 +139,27 @@ int main(void)
     unsigned int stripStride = 7 * sizeof(float);
 
 
-    //float button[CRES * 2 + 4]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
-    //const float buttonCenterX = 0.75; // Centar X0
-    //const float buttonCenterY = -0.85; // Centar Y0
-    //const float buttonRadius = 0.1;    // poluprecnik
-    //button[0] = buttonCenterX; // Centar X0 in normalized coordinates
-    //button[1] = buttonCenterY; // Centar Y0 in normalized coordinates
-    //float aspectRatio = HEIGHT / WIDTH;
-    //for (int i = 0; i <= CRES; i++) {
-    //    button[2 + 2 * i] = buttonCenterX + (buttonRadius * cos((3.141592 / 180) * (i * 360 / CRES))) / (aspectRatio); //Xi
-    //    button[2 + 2 * i + 1] = buttonCenterY + buttonRadius * sin((3.141592 / 180) * (i * 360 / CRES)); //Yi
-    //}
-    const float radius = 0.5f; // Radius of the cylinder
-    const float height = 1.0f; // Height of the cylinder
+    float buttonVertices[] = {
+        // Front face
+        -0.25f, -1.0f, 0.6f,   // Bottom-left
+        0.25f, -1.0f, 0.6f,    // Bottom-right
+        -0.25f, -0.8f, 0.6f,   // Top-left
 
-    float buttonVertices[CRES * 2 * 6 + 12]; // +6 for center vertices (top and bottom)
+        0.25f, -0.8f, 0.6f,    // Top-left
+        0.25f, -1.0f, 0.6f,    // Bottom-right
+        -0.25f, -0.8f, 0.6f,   // Top-right
 
-    int vertexIndex = 0;
+        // Back face
+        -0.25f, -1.0f, 0.7f,   // Bottom-left
+        0.25f, -1.0f, 0.7f,    // Bottom-right
+        -0.25f, -0.8f, 0.7f,   // Top-left
 
-    // Vertices for the sides of the cylinder
-    for (int i = 0; i < CRES; ++i) {
-        float theta = 2.0f * 3.141592 * static_cast<float>(i) / static_cast<float>(CRES);
+        0.25f, -0.8f, 0.7f,    // Top-left
+        0.25f, -1.0f, 0.7f,    // Bottom-right
+        -0.25f, -0.8f, 0.7f    // Top-right
+    };
 
-        // Top vertex
-        buttonVertices[vertexIndex++] = radius * std::cos(theta);   // X
-        buttonVertices[vertexIndex++] = radius * std::sin(theta);   // Y
-        buttonVertices[vertexIndex++] = height / 2.0f;              // Z
-        buttonVertices[vertexIndex++] = std::cos(theta);            // Normal X
-        buttonVertices[vertexIndex++] = std::sin(theta);            // Normal Y
-        buttonVertices[vertexIndex++] = 0.0f;                       // Normal Z
 
-        // Bottom vertex
-        buttonVertices[vertexIndex++] = radius * std::cos(theta);   // X
-        buttonVertices[vertexIndex++] = radius * std::sin(theta);   // Y
-        buttonVertices[vertexIndex++] = -height / 2.0f;             // Z
-        buttonVertices[vertexIndex++] = std::cos(theta);            // Normal X
-        buttonVertices[vertexIndex++] = std::sin(theta);            // Normal Y
-        buttonVertices[vertexIndex++] = 0.0f;                       // Normal Z
-    }
-
-    // Top and bottom center vertices
-    buttonVertices[vertexIndex++] = 0.0f;         // X
-    buttonVertices[vertexIndex++] = 0.0f;         // Y
-    buttonVertices[vertexIndex++] = height / 2.0f;  // Z (top)
-    buttonVertices[vertexIndex++] = 0.0f;         // Normal X
-    buttonVertices[vertexIndex++] = 0.0f;         // Normal Y
-    buttonVertices[vertexIndex++] = 1.0f;         // Normal Z
-
-    buttonVertices[vertexIndex++] = 0.0f;         // X
-    buttonVertices[vertexIndex++] = 0.0f;         // Y
-    buttonVertices[vertexIndex++] = -height / 2.0f;  // Z (bottom)
-    buttonVertices[vertexIndex++] = 0.0f;         // Normal X
-    buttonVertices[vertexIndex++] = 0.0f;         // Normal Y
-    buttonVertices[vertexIndex++] = -1.0f;        // Normal Z
 
     
 
@@ -278,7 +221,7 @@ int main(void)
     }
     
     float luigiVertices[] =
-    {   //X      Y      S    T 
+    {   //X      Y    Z      S    T 
         -0.3,    0.3,0.5,   0.0, 1.0, // Top-left
         -0.3,    -0.2,0.5,   0.0, 0.0, // Bottom-left
         -0.4,    -0.2,0.5,   1.0, 0.0, // Bottom-right
@@ -290,7 +233,7 @@ int main(void)
 
 
     float marioVertices[] =
-    {   //X      Y      S    T 
+    {   //X      Y   Z      S    T 
         0.3,    0.3,0.5,   0.0, 1.0, // Top-left
         0.3,    -0.2,0.5,   0.0, 0.0, // Bottom-left
         0.4,    -0.2,0.5,   1.0, 0.0, // Bottom-right
@@ -338,11 +281,6 @@ int main(void)
     glEnableVertexAttribArray(1);
 
 
-    //glBindVertexArray(VAO[1]);
-    //glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    //glBufferData(GL_ARRAY_BUFFER, sizeof(button), button, GL_STATIC_DRAW);
-    //glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    //glEnableVertexAttribArray(0);
 
 
 
@@ -370,15 +308,7 @@ int main(void)
 
 
 
-    glBindVertexArray(VAO[5]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[5]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(markaVertices), markaVertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, indexStride, (void*)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
+
 
 
     glBindVertexArray(VAO[6]);
@@ -413,6 +343,9 @@ int main(void)
     glBufferData(GL_ARRAY_BUFFER, sizeof(buttonVertices), buttonVertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stripStride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
 
     glBindVertexArray(VAO[10]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[10]);
@@ -555,7 +488,6 @@ int main(void)
 
 
     glDepthFunc(GL_LEQUAL);
-    float rgb = 0;
     bool isTVOn = false;
     int currentChannel = 3;
     float p1x = 0;
@@ -679,101 +611,101 @@ int main(void)
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, GL_TRUE);
 
-        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
-        {
-            isTVOn = true;
+        
+        if (isAngleLessThan60Degrees(daljinskiX, daljinskiY, daljinskiZ,
+            daljinskiRotateX, daljisnkiRotateY, signalCenterX, signalCenterY, signalCenterZ)) {
+            if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+            {
+                isTVOn = true;
 
-        }
-        else
-        {
-            rgb = abs(sin(glfwGetTime()));
-        }
-        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
-        {
-            isTVOn = false;
-        }
-        //isAngleLessThan60Degrees(daljinskiX, daljinskiY, daljinskiZ,
-         //   daljinskiRotateX, daljisnkiRotateY, 0.0, -0.9, 0.5)
-        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
-        {
-            if (isTVOn) {
-                currentChannel = 1;
-                changeChannel = true;
-                channelSwitchTime = glfwGetTime();
-                lightValue = channelLight(1, p1x, p2x);
             }
-        }
-        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
-        {
-            if (isTVOn) {
-                currentChannel = 2;
-                changeChannel = true;
-                channelSwitchTime = glfwGetTime();
-                lightValue = channelLight(2, p1x, p2x);
+            if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)
+            {
+                isTVOn = false;
             }
-        }
-        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
-        {
-            if (isTVOn) {
-                currentChannel = 3;
-                changeChannel = true;
-                channelSwitchTime = glfwGetTime();
-                lightValue = channelLight(3, p1x, p2x);
+            if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+            {
+                if (isTVOn) {
+                    currentChannel = 1;
+                    changeChannel = true;
+                    channelSwitchTime = glfwGetTime();
+                    lightValue = channelLight(1, p1x, p2x);
+                }
             }
-        }
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        {
-            if (isTVOn) {
-                if (currentChannel == 3) {
-                    p1x -= 0.001;
-                    if (p1x <= -0.5) {
-                        p1x = -0.5;
-                    }
+
+            if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+            {
+                if (isTVOn) {
+                    currentChannel = 2;
+                    changeChannel = true;
+                    channelSwitchTime = glfwGetTime();
+                    lightValue = channelLight(2, p1x, p2x);
+                }
+            }
+            if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+            {
+                if (isTVOn) {
+                    currentChannel = 3;
+                    changeChannel = true;
+                    channelSwitchTime = glfwGetTime();
                     lightValue = channelLight(3, p1x, p2x);
                 }
-
             }
-        }
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        {
-            if (isTVOn) {
-                if (currentChannel == 3) {
-                    p1x += 0.001;
-                    if (p1x >= 0.3) {
-                        p1x = 0.3;
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            {
+                if (isTVOn) {
+                    if (currentChannel == 3) {
+                        p1x -= 0.001;
+                        if (p1x <= -0.5) {
+                            p1x = -0.5;
+                        }
+                        lightValue = channelLight(3, p1x, p2x);
                     }
-                    lightValue = channelLight(3, p1x, p2x);
+
                 }
-
             }
-        }
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-        {
-
-            if (isTVOn) {
-                if (currentChannel == 3) {
-                    p2x += 0.001;
-                    if (p2x >= 0.5) {
-                        p2x = 0.5;
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            {
+                if (isTVOn) {
+                    if (currentChannel == 3) {
+                        p1x += 0.001;
+                        if (p1x >= 0.3) {
+                            p1x = 0.3;
+                        }
+                        lightValue = channelLight(3, p1x, p2x);
                     }
-                    lightValue = channelLight(3, p1x, p2x);
-                }
 
+                }
             }
-        }
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-        {
-            if (isTVOn) {
-                if (currentChannel == 3) {
-                    p2x -= 0.001;
-                    if (p2x <= -0.3) {
-                        p2x = -0.3;
+            if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+            {
+
+                if (isTVOn) {
+                    if (currentChannel == 3) {
+                        p2x += 0.001;
+                        if (p2x >= 0.5) {
+                            p2x = 0.5;
+                        }
+                        lightValue = channelLight(3, p1x, p2x);
                     }
-                    lightValue = channelLight(3, p1x, p2x);
-                }
 
+                }
+            }
+            if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+            {
+                if (isTVOn) {
+                    if (currentChannel == 3) {
+                        p2x -= 0.001;
+                        if (p2x <= -0.3) {
+                            p2x = -0.3;
+                        }
+                        lightValue = channelLight(3, p1x, p2x);
+                    }
+
+                }
             }
         }
+        
         if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
         {
             daljinskiX += 0.1;
@@ -829,11 +761,11 @@ int main(void)
 
 
 
-        glUseProgram(channel2Shader);
+        glUseProgram(unifiedShader);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(glGetUniformLocation(channel2Shader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
+        glUniformMatrix4fv(glGetUniformLocation(unifiedShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
         glBindVertexArray(VAO[9]);
-        //glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(buttonVertices) / stripStride);
+        //glDrawArrays(GL_TRIANGLES, 0, sizeof(buttonVertices) / stripStride);
 
         if (changeChannel) {
             if (glfwGetTime() - channelSwitchTime < delayDuration) {
@@ -948,11 +880,7 @@ int main(void)
                 glUniform1i(uTexLoc, 0);
                 glDrawArrays(GL_TRIANGLES, 0, 6);
                 glBindTexture(GL_TEXTURE_2D, 0);
-                //glDisable(GL_BLEND);
 
-                //glEnable(GL_BLEND);
-                //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                glUseProgram(playerShader);
                 glBindVertexArray(VAO[6]);
                 glActiveTexture(GL_TEXTURE0); // luigi textura
                 glBindTexture(GL_TEXTURE_2D, luigiTexture);
@@ -981,9 +909,9 @@ int main(void)
 
             //glUniform3f(lightPosLoc, 1.0, 0.25, 1.0);
             glUniform3f(glGetUniformLocation(phongShader, "uLight.pos"), 0.0, 0, 0.5);
-            glUniform3f(glGetUniformLocation(phongShader, "uLight.kA"), 0.4, 0.4, 0.4);
-            glUniform3f(glGetUniformLocation(phongShader, "uLight.kD"), 0.8, 0.8, 0.8);
-            glUniform3f(glGetUniformLocation(phongShader, "uLight.kS"), 1.0, 1.0, 1.0);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kA"),lightValue, lightValue, lightValue);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kD"), lightValue, lightValue, lightValue);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kS"), 0.5, 0.5, 0.5);
 
             glUniform1f(glGetUniformLocation(phongShader, "uMaterial.shine"), 0.6 * 128); //Materijal: Rubin
             glUniform3f(glGetUniformLocation(phongShader, "uMaterial.kA"), 0.1745, 0.01175, 0.1175);
@@ -994,14 +922,14 @@ int main(void)
             glUniformMatrix4fv(glGetUniformLocation(phongShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
             glUniformMatrix4fv(glGetUniformLocation(phongShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
             glUniformMatrix4fv(glGetUniformLocation(phongShader, "uP"), 1, GL_FALSE, glm::value_ptr(currentProjection));
-
-            glUniform3f(glGetUniformLocation(phongShader, "uViewPos"), 0.0, 0.0, 2.0); //Isto kao i pozicija kamere
+            glm::vec3 cameraPosition = glm::inverse(view)[3];
+            glUniform3f(glGetUniformLocation(phongShader, "uViewPos"), cameraPosition.x, cameraPosition.y, cameraPosition.z); //Isto kao i pozicija kamere
 
             //glUniform3f(lightPosLoc, 1.0, 0.25, 1.0);
-            glUniform3f(glGetUniformLocation(phongShader, "uLight.pos"), 0.0, 0.25, 2.0);
-            glUniform3f(glGetUniformLocation(phongShader, "uLight.kA"), 0.4, 0.4, 0.4);
-            glUniform3f(glGetUniformLocation(phongShader, "uLight.kD"), 0.8, 0.8, 0.8);
-            glUniform3f(glGetUniformLocation(phongShader, "uLight.kS"), 1.0, 1.0, 1.0);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.pos"), 0.0, 0, 0.5);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kA"), 0, 0, 0);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kD"), 0, 0, 0);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kS"), 0, 0, 0);
 
             glUniform1f(glGetUniformLocation(phongShader, "uMaterial.shine"), 0.6 * 128); //Materijal: Rubin
             glUniform3f(glGetUniformLocation(phongShader, "uMaterial.kA"), 0.1745, 0.01175, 0.1175);
@@ -1115,7 +1043,6 @@ float channelLight(int channel, float p1x, float p2x) {
         float maxDistance = 1.8;
         float maxScale = 1.0;
         float minScale = 0.1;
-        // Scale the distance to the range [minScale, maxScale]
         float scaledDistance = minScale + (maxScale - minScale) * (1.0 - (distance - minDistance) / (maxDistance - minDistance));
 
         return scaledDistance;
@@ -1124,10 +1051,10 @@ float channelLight(int channel, float p1x, float p2x) {
 bool isAngleLessThan60Degrees(float remoteX, float remoteY, float remoteZ,
     float remoteRotateX, float remoteRotateY,
     float signalX, float signalY, float signalZ) {
-    // Remote position
+
     glm::vec3 remotePosition(remoteX, remoteY, remoteZ);
 
-    float angleInRadiansX = glm::radians(remoteRotateX);
+    float angleInRadiansX = glm::radians(remoteRotateX + 180);
     float angleInRadiansY = glm::radians(remoteRotateY);
 
     glm::vec3 remoteDirection(
