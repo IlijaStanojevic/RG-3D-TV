@@ -151,6 +151,8 @@
     <None Include="button.vert" />
     <None Include="channel2.frag" />
     <None Include="channel2.vert" />
+    <None Include="clock.vert" />
+    <None Include="light.frag" />
     <None Include="model.frag" />
     <None Include="model.vert" />
     <None Include="packages.config" />

@@ -70,6 +70,8 @@
     <None Include="model.vert" />
     <None Include="phong.vert" />
     <None Include="phong.frag" />
+    <None Include="clock.vert" />
+    <None Include="light.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="index.png">

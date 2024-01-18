@@ -15,5 +15,5 @@ void main()
     else{
         fragColor = vec4(1.0, 1.0, 1.0, 0.0);
     }
-    fragColor = channelCol;
+    //fragColor = channelCol;
 }
