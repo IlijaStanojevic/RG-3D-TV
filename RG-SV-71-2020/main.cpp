@@ -74,7 +74,8 @@ int main(void)
     unsigned int unifiedShader = createShader("unified.vert", "unified.frag");
     unsigned int screenShader = createShader("screen.vert", "screen.frag");
     unsigned int clockShader = createShader("clock.vert", "unified.frag");
-    unsigned int lightShader = createShader("unified.vert", "light.frag");
+    unsigned int signalShader = createShader("unified.vert", "light.frag");
+    unsigned int phongShader = createShader("phong.vert", "phong.frag");
 
 
 
@@ -163,17 +164,61 @@ int main(void)
     unsigned int stripStride = 7 * sizeof(float);
 
 
-    float button[CRES * 2 + 4]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
-    const float buttonCenterX = 0.75; // Centar X0
-    const float buttonCenterY = -0.85; // Centar Y0
-    const float buttonRadius = 0.1;    // poluprecnik
-    button[0] = buttonCenterX; // Centar X0 in normalized coordinates
-    button[1] = buttonCenterY; // Centar Y0 in normalized coordinates
-    float aspectRatio = HEIGHT / WIDTH;
-    for (int i = 0; i <= CRES; i++) {
-        button[2 + 2 * i] = buttonCenterX + (buttonRadius * cos((3.141592 / 180) * (i * 360 / CRES))) / (aspectRatio); //Xi
-        button[2 + 2 * i + 1] = buttonCenterY + buttonRadius * sin((3.141592 / 180) * (i * 360 / CRES)); //Yi
+    //float button[CRES * 2 + 4]; // +4 je za x i y koordinate centra kruga, i za x i y od nultog ugla
+    //const float buttonCenterX = 0.75; // Centar X0
+    //const float buttonCenterY = -0.85; // Centar Y0
+    //const float buttonRadius = 0.1;    // poluprecnik
+    //button[0] = buttonCenterX; // Centar X0 in normalized coordinates
+    //button[1] = buttonCenterY; // Centar Y0 in normalized coordinates
+    //float aspectRatio = HEIGHT / WIDTH;
+    //for (int i = 0; i <= CRES; i++) {
+    //    button[2 + 2 * i] = buttonCenterX + (buttonRadius * cos((3.141592 / 180) * (i * 360 / CRES))) / (aspectRatio); //Xi
+    //    button[2 + 2 * i + 1] = buttonCenterY + buttonRadius * sin((3.141592 / 180) * (i * 360 / CRES)); //Yi
+    //}
+    const float radius = 0.5f; // Radius of the cylinder
+    const float height = 1.0f; // Height of the cylinder
+
+    float buttonVertices[CRES * 2 * 6 + 12]; // +6 for center vertices (top and bottom)
+
+    int vertexIndex = 0;
+
+    // Vertices for the sides of the cylinder
+    for (int i = 0; i < CRES; ++i) {
+        float theta = 2.0f * 3.141592 * static_cast<float>(i) / static_cast<float>(CRES);
+
+        // Top vertex
+        buttonVertices[vertexIndex++] = radius * std::cos(theta);   // X
+        buttonVertices[vertexIndex++] = radius * std::sin(theta);   // Y
+        buttonVertices[vertexIndex++] = height / 2.0f;              // Z
+        buttonVertices[vertexIndex++] = std::cos(theta);            // Normal X
+        buttonVertices[vertexIndex++] = std::sin(theta);            // Normal Y
+        buttonVertices[vertexIndex++] = 0.0f;                       // Normal Z
+
+        // Bottom vertex
+        buttonVertices[vertexIndex++] = radius * std::cos(theta);   // X
+        buttonVertices[vertexIndex++] = radius * std::sin(theta);   // Y
+        buttonVertices[vertexIndex++] = -height / 2.0f;             // Z
+        buttonVertices[vertexIndex++] = std::cos(theta);            // Normal X
+        buttonVertices[vertexIndex++] = std::sin(theta);            // Normal Y
+        buttonVertices[vertexIndex++] = 0.0f;                       // Normal Z
     }
+
+    // Top and bottom center vertices
+    buttonVertices[vertexIndex++] = 0.0f;         // X
+    buttonVertices[vertexIndex++] = 0.0f;         // Y
+    buttonVertices[vertexIndex++] = height / 2.0f;  // Z (top)
+    buttonVertices[vertexIndex++] = 0.0f;         // Normal X
+    buttonVertices[vertexIndex++] = 0.0f;         // Normal Y
+    buttonVertices[vertexIndex++] = 1.0f;         // Normal Z
+
+    buttonVertices[vertexIndex++] = 0.0f;         // X
+    buttonVertices[vertexIndex++] = 0.0f;         // Y
+    buttonVertices[vertexIndex++] = -height / 2.0f;  // Z (bottom)
+    buttonVertices[vertexIndex++] = 0.0f;         // Normal X
+    buttonVertices[vertexIndex++] = 0.0f;         // Normal Y
+    buttonVertices[vertexIndex++] = -1.0f;        // Normal Z
+
+    
 
 
     float dotCircle[CRES * 3 + 6]; // +6 for x, y, and z coordinates of the center, and for x, y of the starting point
@@ -257,16 +302,25 @@ int main(void)
         0.4,    0.3,0.5,   1.0, 1.0  // Top-right
     };
 
+    float floorVertices[] = {
+    2, -1, 2,  0.0, 0.4, 0.0, 0.0,
+    -2, -1, 2,  0.0, 0.4, 0.0, 0.0,
+    -2, -1, -2,  0.0, 0.4, 0.0, 0.0,
+
+    -2, -1, -2,  0.0, 0.4, 0.0, 0.0,
+    2, -1, -2,  0.0, 0.4, 0.0, 0.0,
+    2, -1, 2,  0.0, 0.4, 0.0, 0.0,
+    };
 
 
 
 
 
 
-    unsigned VAO[9]; //0 = TV border, 1= button, 2= dot circle, 3= clock circle,4= clock needle, 5= marka texture, 6= luigi(p2), 7= mario(p1), 8= index gore levo
-    glGenVertexArrays(9, VAO);
-    unsigned VBO[9];
-    glGenBuffers(9, VBO);
+    unsigned VAO[11]; //0 = TV border, 1= button, 2= dot circle, 3= clock circle,4= clock needle, 5= marka texture, 6= luigi(p2), 7= mario(p1), 8= index gore levo
+    glGenVertexArrays(11, VAO);
+    unsigned VBO[11];
+    glGenBuffers(11, VBO);
 
 
     glBindVertexArray(VAO[0]);
@@ -356,6 +410,20 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    glBindVertexArray(VAO[9]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[9]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(buttonVertices), buttonVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(VAO[10]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[10]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(floorVertices), floorVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stripStride, (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stripStride, (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
 
 
 
@@ -441,11 +509,18 @@ int main(void)
 
 
 
-    glUseProgram(lightShader);
-    glUniform1i(glGetUniformLocation(lightShader, "state"), 2);
-    glUniformMatrix4fv(glGetUniformLocation(lightShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(glGetUniformLocation(lightShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(glGetUniformLocation(lightShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
+    glUseProgram(signalShader);
+    glUniform1i(glGetUniformLocation(signalShader, "state"), 2);
+    glUniformMatrix4fv(glGetUniformLocation(signalShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(signalShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(signalShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
+
+
+    glUseProgram(phongShader);
+    glUniform1i(glGetUniformLocation(phongShader, "state"), 2);
+    glUniformMatrix4fv(glGetUniformLocation(phongShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(glGetUniformLocation(phongShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(phongShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
 
 
 
@@ -485,7 +560,7 @@ int main(void)
     float daljinskiX = 2;
     float daljinskiY = -9;
     float daljinskiZ = -12.0;
-    float daljinskiRotateX = -93;
+    float daljinskiRotateX = -90;
     float daljisnkiRotateY = 0;
     bool changeChannel = false;
     double channelSwitchTime = 0.0;
@@ -749,7 +824,15 @@ int main(void)
         glBindVertexArray(VAO[0]); // Border TV-a
         glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(stripVertices) / stripStride);
 
+        //glBindVertexArray(VAO[10]); 
+        //glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(floorVertices) / stripStride);
 
+
+
+        glUseProgram(channel2Shader);
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+        glBindVertexArray(VAO[9]);
+        //glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(buttonVertices) / stripStride);
 
         if (changeChannel) {
             if (glfwGetTime() - channelSwitchTime < delayDuration) {
@@ -759,9 +842,9 @@ int main(void)
                 glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 1);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
                 lightValue = 0.1;
-                glUseProgram(lightShader);
-                glUniform1i(glGetUniformLocation(lightShader, "state"), 2);
-                glUniformMatrix4fv(glGetUniformLocation(lightShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUseProgram(signalShader);
+                glUniform1i(glGetUniformLocation(signalShader, "state"), 2);
+                glUniformMatrix4fv(glGetUniformLocation(signalShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
                 glBindVertexArray(VAO[8]);
                 glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(dotCircle) / (2 * sizeof(float)));
             }else {
@@ -784,9 +867,9 @@ int main(void)
                 if (currentChannel == 3) {
                     lightValue = channelLight(currentChannel, p1x, p2x);
                 }
-                glUseProgram(lightShader);
-                glUniform1i(glGetUniformLocation(lightShader, "state"), 1);
-                glUniformMatrix4fv(glGetUniformLocation(lightShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUseProgram(signalShader);
+                glUniform1i(glGetUniformLocation(signalShader, "state"), 1);
+                glUniformMatrix4fv(glGetUniformLocation(signalShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
                 glBindVertexArray(VAO[8]);
                 glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(dotCircle) / (2 * sizeof(float)));
                 
@@ -797,9 +880,9 @@ int main(void)
                 glUniformMatrix4fv(glGetUniformLocation(screenShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
                 glUniform1i(glGetUniformLocation(screenShader, "isTvOn"), 1);
                 glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(screenVertices) / stripStride);
-                glUseProgram(lightShader);
-                glUniform1i(glGetUniformLocation(lightShader, "state"), 0);
-                glUniformMatrix4fv(glGetUniformLocation(lightShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+                glUseProgram(signalShader);
+                glUniform1i(glGetUniformLocation(signalShader, "state"), 0);
+                glUniformMatrix4fv(glGetUniformLocation(signalShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
                 glBindVertexArray(VAO[8]);
                 glDrawArrays(GL_TRIANGLE_FAN, 0, sizeof(dotCircle) / (2 * sizeof(float)));
             }
@@ -869,8 +952,47 @@ int main(void)
             glClearColor(0.1f, 0.0f, 0.8f, 1.0f);
         }
         
+        glUseProgram(phongShader);
+        glUniformMatrix4fv(glGetUniformLocation(phongShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+        
+        glBindVertexArray(VAO[10]);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, sizeof(floorVertices) / stripStride);
+        if (isTVOn) {
+            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
+            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
+            glm::vec3 cameraPosition = glm::inverse(view)[3];
+            glUniform3f(glGetUniformLocation(phongShader, "uViewPos"), cameraPosition.x, cameraPosition.y, cameraPosition.z); //Isto kao i pozicija kamere
 
+            //glUniform3f(lightPosLoc, 1.0, 0.25, 1.0);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.pos"), 0.0, 0, 0.5);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kA"), 0.4, 0.4, 0.4);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kD"), 0.8, 0.8, 0.8);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kS"), 1.0, 1.0, 1.0);
 
+            glUniform1f(glGetUniformLocation(phongShader, "uMaterial.shine"), 0.6 * 128); //Materijal: Rubin
+            glUniform3f(glGetUniformLocation(phongShader, "uMaterial.kA"), 0.1745, 0.01175, 0.1175);
+            glUniform3f(glGetUniformLocation(phongShader, "uMaterial.kD"), 0.61424, 0.04136, 0.04136);
+            glUniform3f(glGetUniformLocation(phongShader, "uMaterial.kS"), 0.72811, 0.626959, 0.62959);
+        }
+        else {
+            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uM"), 1, GL_FALSE, glm::value_ptr(model));
+            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uV"), 1, GL_FALSE, glm::value_ptr(view));
+            glUniformMatrix4fv(glGetUniformLocation(phongShader, "uP"), 1, GL_FALSE, glm::value_ptr(projectionP));
+
+            glUniform3f(glGetUniformLocation(phongShader, "uViewPos"), 0.0, 0.0, 2.0); //Isto kao i pozicija kamere
+
+            //glUniform3f(lightPosLoc, 1.0, 0.25, 1.0);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.pos"), 0.0, 0.25, 2.0);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kA"), 0.4, 0.4, 0.4);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kD"), 0.8, 0.8, 0.8);
+            glUniform3f(glGetUniformLocation(phongShader, "uLight.kS"), 1.0, 1.0, 1.0);
+
+            glUniform1f(glGetUniformLocation(phongShader, "uMaterial.shine"), 0.6 * 128); //Materijal: Rubin
+            glUniform3f(glGetUniformLocation(phongShader, "uMaterial.kA"), 0.1745, 0.01175, 0.1175);
+            glUniform3f(glGetUniformLocation(phongShader, "uMaterial.kD"), 0.61424, 0.04136, 0.04136);
+            glUniform3f(glGetUniformLocation(phongShader, "uMaterial.kS"), 0.72811, 0.626959, 0.62959);
+        }
 
         
         modelShader.use();
@@ -894,12 +1016,12 @@ int main(void)
         modelShader.setMat4("uP", projectionP);
         if (isTVOn) {
             modelShader.setVec3("uLightPos", 0, 1, 0.5);
-            modelShader.setVec3("uViewPos", 0, 0, 5);
+            modelShader.setVec3("uViewPos", glm::vec3(view[3]));
             modelShader.setVec3("uLightColor", lightValue,lightValue, lightValue);
         }
         else {
             modelShader.setVec3("uLightPos", 0, 1, 0.5);
-            modelShader.setVec3("uViewPos", 0, 0, 5);
+            modelShader.setVec3("uViewPos", glm::vec3(view[3]));
             modelShader.setVec3("uLightColor", 0.1, 0.1, 0.1);
         }
         daljinski.Draw(modelShader);
